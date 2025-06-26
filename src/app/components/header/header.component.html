@@ -1,0 +1,55 @@
+<header class="navbar navbar-premium" [class.is-scrolled]="isScrolled">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <a routerLink="/" class="navbar-logo" aria-label="Ir a inicio">
+      <i class="pi pi-car"></i>
+      <span>VoyalAeropuerto</span>
+    </a>
+
+    <!-- Navigation -->
+    <nav class="navbar-nav" [class.is-open]="isMenuOpen" aria-label="Navegación principal">
+      <ul class="navbar-nav-list">
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link" (click)="closeMenu()">INICIO</a></li>
+        <li><a href="#services" class="nav-link" (click)="scrollToSection($event, 'services')">SERVICIOS</a></li>
+        <li><a href="#how-it-works" class="nav-link" (click)="scrollToSection($event, 'how-it-works')">CÓMO FUNCIONA</a></li>
+        <li><a href="#contact" class="nav-link" (click)="scrollToSection($event, 'contact')">CONTACTO</a></li>
+      </ul>
+    </nav>
+
+    <!-- Actions -->
+    <div class="navbar-actions">
+      <button class="btn btn-outline" (click)="openConsultation()">
+        <i class="pi pi-search"></i>
+        <span>CONSULTAR</span>
+      </button>
+      <button class="btn btn-primary" (click)="scrollToBooking()">
+        <i class="pi pi-calendar-plus"></i>
+        <span>RESERVAR</span>
+      </button>
+      <button class="navbar-toggle" (click)="toggleMenu()" aria-label="Abrir menú">
+        <i class="pi" [ngClass]="isMenuOpen ? 'pi-times' : 'pi-bars'"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal de consulta -->
+  <div class="consultation-modal-overlay" *ngIf="showConsultationModal" (click)="closeConsultation()">
+    <div class="consultation-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h4>Consultar Reserva</h4>
+        <button class="btn btn-sm close-btn" (click)="closeConsultation()" aria-label="Cerrar modal">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="searchBooking()" #consultForm="ngForm">
+          <div class="form-group">
+            <label for="bookingId" class="form-label">Código de Reserva</label>
+            <input type="text" id="bookingId" [(ngModel)]="bookingId" name="bookingId" class="form-control form-control-lg" required placeholder="Ej: ABC123">
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg w-100 mt-3" [disabled]="consultForm.invalid">BUSCAR</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>

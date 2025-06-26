@@ -1,0 +1,27 @@
+.home-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.main-content {
+  position: relative;
+}
+
+// Smooth scrolling behavior
+html {
+  scroll-behavior: smooth;
+}
+
+// Page transitions
+.home-page {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

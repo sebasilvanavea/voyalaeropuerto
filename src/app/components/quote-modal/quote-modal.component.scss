@@ -1,0 +1,127 @@
+:host {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+
+:host.visible {
+  display: block;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+
+.modal-container {
+  background-color: var(--bg-color, #fff);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg, 12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color, #eee);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-color, #333);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-color-secondary, #777);
+    padding: 0;
+    line-height: 1;
+
+    &:hover {
+      color: var(--primary-color, #007bff);
+    }
+  }
+}
+
+.modal-body {
+  padding-top: 1rem;
+  color: var(--text-color-secondary, #555);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-field {
+  position: relative;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color, #eee);
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .modal-container {
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}
+
+// PrimeNG Overrides for consistent styling
+:host ::ng-deep .p-inputtext-lg .p-inputtext {
+  font-size: 1rem;
+}
+
+:host ::ng-deep .p-calendar .p-inputtext {
+  width: 100%;
+}
+
+:host ::ng-deep .p-float-label > label {
+  color: var(--text-color-secondary, #777);
+}

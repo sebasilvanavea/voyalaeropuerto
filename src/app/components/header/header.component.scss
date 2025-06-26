@@ -1,0 +1,247 @@
+/* === HEADER PREMIUM - FONDO CLARO === */
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+  width: 100%;
+}
+
+.navbar-premium {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-bottom: 1px solid var(--apiux-gray-200);
+  padding: var(--apiux-spacing-md) 0;
+  transition: all 0.3s ease-in-out;
+  height: 72px; // Aumentar ligeramente la altura para más espacio
+  display: flex;
+  align-items: center;
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1280px; // Aumentar el max-width para layouts más anchos
+  margin: 0 auto;
+  padding: 0 var(--apiux-spacing-xl);
+}
+
+/* Logo */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: var(--apiux-font-size-xl);
+  font-weight: 800;
+  color: var(--apiux-blue-primary);
+  text-decoration: none;
+  transition: color var(--apiux-transition-fast);
+
+  i {
+    font-size: 1.8rem;
+    color: var(--apiux-yellow);
+  }
+
+  &:hover {
+    color: var(--apiux-blue-light);
+  }
+}
+
+/* Navegación */
+.navbar-nav-list {
+  display: flex;
+  align-items: center;
+  gap: var(--apiux-spacing-lg); // Reducir el espacio entre links
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  font-size: var(--apiux-font-size-sm);
+  font-weight: 600;
+  color: var(--apiux-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0.5rem; // Añadir padding horizontal para mejor área de click
+  position: relative;
+  text-decoration: none;
+  transition: color var(--apiux-transition-fast);
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; // Bajar un poco la línea
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--apiux-yellow);
+    transform: scaleX(0);
+    transform-origin: left; // Animación de izquierda a derecha
+    transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  &:hover,
+  &.active {
+    color: var(--apiux-blue-primary);
+  }
+
+  &.active::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Acciones y menú móvil */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--apiux-spacing-md); // Aumentar el gap para separar los botones
+}
+
+.navbar-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--apiux-spacing-sm);
+  padding: 0.7rem 1.2rem; // Padding personalizado para botones del header
+  font-size: var(--apiux-font-size-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap; // Evitar que el texto del botón se rompa
+}
+
+.navbar-toggle {
+  display: none; // Oculto por defecto
+  background: none;
+  border: none;
+  color: var(--apiux-blue-primary);
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+/* Modal de consulta */
+.consultation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(26, 32, 44, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.consultation-modal-card {
+  background: var(--apiux-bg-white);
+  border-radius: 12px;
+  box-shadow: var(--apiux-shadow-xl);
+  width: 90%;
+  max-width: 450px;
+  transform: scale(0.95);
+  transition: transform 0.3s;
+}
+
+.consultation-modal-overlay.show .consultation-modal-card {
+  transform: scale(1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--apiux-spacing-lg);
+  border-bottom: 1px solid var(--apiux-border);
+
+  h4 {
+    margin: 0;
+    font-size: var(--apiux-font-size-lg);
+    font-weight: 700;
+  }
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--apiux-text-muted);
+  cursor: pointer;
+  &:hover {
+    color: var(--apiux-text-primary);
+  }
+}
+
+.modal-body {
+  padding: var(--apiux-spacing-xl);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 992px) {
+  .navbar-actions .btn span {
+    display: none;
+  }
+  .navbar-actions .btn {
+    padding: 0.7rem; // Hacer los botones cuadrados
+  }
+  .navbar-actions .btn i {
+    margin-right: 0;
+    font-size: 1.2rem; // Ajustar tamaño de ícono
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-nav {
+    display: none; // Ocultar menú de escritorio por defecto
+    flex-direction: column;
+    position: absolute;
+    top: 72px; // Alineado con la altura del header
+    left: 0;
+    width: 100%;
+    background: var(--apiux-bg-white);
+    box-shadow: var(--apiux-shadow-lg);
+    padding: var(--apiux-spacing-md) 0;
+    animation: slideDown 0.3s ease-out forwards;
+    border-top: 1px solid var(--apiux-border);
+  }
+
+  .navbar-nav.is-open {
+    display: flex; // Mostrar menú cuando está abierto
+  }
+
+  .navbar-toggle {
+    display: block; // Mostrar botón de hamburguesa
+  }
+
+  .navbar-actions .btn {
+    display: none; // Ocultar todos los botones de acción por defecto
+  }
+
+  .nav-link {
+    padding: var(--apiux-spacing-md) var(--apiux-spacing-xl);
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

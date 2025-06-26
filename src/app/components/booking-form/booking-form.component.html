@@ -1,0 +1,509 @@
+<section id="booking-section" class="booking-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Reserva tu Traslado</h2>
+      <p class="section-subtitle">Completa los datos en 4 simples pasos y obtén tu tarifa al instante.</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width]="getProgressBarWidth()"></div>
+      </div>
+      <div class="progress-steps">
+        <div *ngFor="let step of steps; let i = index" 
+             class="progress-step" 
+             [class.active]="currentStep > i"
+             [class.current]="currentStep === i + 1">
+          <div class="step-circle">
+            <i [class]="step.icon"></i>
+          </div>
+          <span class="step-label">{{ step.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="booking-form-container">
+      <form class="booking-form" (ngSubmit)="bookNow()" #bookingForm="ngForm" novalidate>
+        
+        <!-- Step 1: Ruta -->
+        <div class="form-step" *ngIf="currentStep === 1">
+          <div class="step-content">
+            <h3 class="step-title">
+              <i class="pi pi-map-marker"></i>
+              Selecciona tu Ruta
+            </h3>
+            
+            <!-- Dirección del Viaje -->
+            <div class="form-group">
+              <label for="direction">Dirección del Viaje</label>
+              <div class="direction-selector">
+                <label class="direction-option" [ngClass]="{'selected': bookingData.direction === 'to-airport'}">
+                  <input type="radio" name="direction" value="to-airport" [(ngModel)]="bookingData.direction" (change)="updateDirection('to-airport')">
+                  <span class="option-content">
+                    <i class="pi pi-send"></i>
+                    <span class="option-text">
+                      <strong>Hacia el Aeropuerto</strong>
+                      <small>Desde tu ubicación al aeropuerto</small>
+                    </span>
+                  </span>
+                </label>
+                <label class="direction-option" [ngClass]="{'selected': bookingData.direction === 'from-airport'}">
+                  <input type="radio" name="direction" value="from-airport" [(ngModel)]="bookingData.direction" (change)="updateDirection('from-airport')">
+                  <span class="option-content">
+                    <i class="pi pi-replay"></i>
+                    <span class="option-text">
+                      <strong>Desde el Aeropuerto</strong>
+                      <small>Del aeropuerto a tu destino</small>
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Zona -->
+            <div class="form-group">
+              <label for="zone">Selecciona tu Comuna/Zona</label>
+              <select id="zone" name="zone" class="form-control" [(ngModel)]="bookingData.zoneName" (change)="onFormChange()" required>
+                <option value="">Selecciona una zona...</option>
+                <option *ngFor="let zone of zones" [value]="zone.name">{{ zone.name }}</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="step-navigation">
+            <button type="button" class="btn btn-secondary" disabled>Anterior</button>
+            <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canProceed()">
+              Siguiente <i class="pi pi-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Fecha y Hora -->
+        <div class="form-step" *ngIf="currentStep === 2">
+          <div class="step-content">
+            <h3 class="step-title">
+              <i class="pi pi-calendar"></i>
+              Fecha y Hora del Viaje
+            </h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="departureDate">Fecha</label>
+                <input type="date" id="departureDate" name="departureDate" class="form-control" 
+                       [(ngModel)]="bookingData.departureDate" [min]="today" (change)="onFormChange()" required>
+              </div>
+              <div class="form-group">
+                <label for="departureTime">Hora</label>
+                <input type="time" id="departureTime" name="departureTime" class="form-control" 
+                       [(ngModel)]="bookingData.departureTime" (change)="onFormChange()" required>
+              </div>
+            </div>
+          </div>
+          
+          <div class="step-navigation">
+            <button type="button" class="btn btn-secondary" (click)="prevStep()">
+              <i class="pi pi-arrow-left"></i> Anterior
+            </button>
+            <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canProceed()">
+              Siguiente <i class="pi pi-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Pasajeros y Equipaje -->
+        <div class="form-step" *ngIf="currentStep === 3">
+          <div class="step-content">
+            <h3 class="step-title">
+              <i class="pi pi-users"></i>
+              Pasajeros y Equipaje
+            </h3>
+            
+            <!-- Pasajeros -->
+            <div class="form-group">
+              <label>Número de Pasajeros</label>
+              <div class="counter-container">
+                <div class="counter">
+                  <button type="button" class="counter-btn" (click)="updatePassengers(-1)" [disabled]="bookingData.passengers <= 1">
+                    <i class="pi pi-minus"></i>
+                  </button>
+                  <span class="counter-value">{{ bookingData.passengers }}</span>
+                  <button type="button" class="counter-btn" (click)="updatePassengers(1)">
+                    <i class="pi pi-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Equipaje -->
+            <div class="form-group">
+              <label>Equipaje</label>
+              <div class="luggage-counters">
+                <div class="luggage-item">
+                  <div class="luggage-info">
+                    <i class="pi pi-briefcase luggage-icon"></i>
+                    <div class="luggage-text">
+                      <span class="luggage-title">Maletas Grandes</span>
+                      <small>Para bodega del vehículo</small>
+                    </div>
+                  </div>
+                  <div class="counter">
+                    <button type="button" class="counter-btn" (click)="updateLuggages('large', -1)" [disabled]="bookingData.largeLuggages <= 0">
+                      <i class="pi pi-minus"></i>
+                    </button>
+                    <span class="counter-value">{{ bookingData.largeLuggages }}</span>
+                    <button type="button" class="counter-btn" (click)="updateLuggages('large', 1)">
+                      <i class="pi pi-plus"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="luggage-item">
+                  <div class="luggage-info">
+                    <i class="pi pi-shopping-bag luggage-icon"></i>
+                    <div class="luggage-text">
+                      <span class="luggage-title">Maletas de Mano</span>
+                      <small>Tamaño mediano</small>
+                    </div>
+                  </div>
+                  <div class="counter">
+                    <button type="button" class="counter-btn" (click)="updateLuggages('medium', -1)" [disabled]="bookingData.mediumLuggages <= 0">
+                      <i class="pi pi-minus"></i>
+                    </button>
+                    <span class="counter-value">{{ bookingData.mediumLuggages }}</span>
+                    <button type="button" class="counter-btn" (click)="updateLuggages('medium', 1)">
+                      <i class="pi pi-plus"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="luggage-item">
+                  <div class="luggage-info">
+                    <i class="pi pi-folder luggage-icon"></i>
+                    <div class="luggage-text">
+                      <span class="luggage-title">Mochilas/Bolsos</span>
+                      <small>Equipaje pequeño</small>
+                    </div>
+                  </div>
+                  <div class="counter">
+                    <button type="button" class="counter-btn" (click)="updateLuggages('small', -1)" [disabled]="bookingData.smallLuggages <= 0">
+                      <i class="pi pi-minus"></i>
+                    </button>
+                    <span class="counter-value">{{ bookingData.smallLuggages }}</span>
+                    <button type="button" class="counter-btn" (click)="updateLuggages('small', 1)">
+                      <i class="pi pi-plus"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="step-navigation">
+            <button type="button" class="btn btn-secondary" (click)="prevStep()">
+              <i class="pi pi-arrow-left"></i> Anterior
+            </button>
+            <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canProceed()">
+              Siguiente <i class="pi pi-arrow-right"></i>
+            </button>
+          </div>
+        </div>        <!-- Step 4: Vehículo y Confirmación -->
+        <div class="form-step" *ngIf="currentStep === 4">
+          <div class="step-content">
+            <h3 class="step-title">
+              <i class="pi pi-car"></i>
+              Selecciona tu Vehículo
+            </h3>
+            
+            <div class="vehicle-selection">
+              <div *ngFor="let vehicle of vehicles" 
+                   class="vehicle-card" 
+                   [ngClass]="{'selected': bookingData.vehicleType === vehicle.type}" 
+                   (click)="selectVehicle(vehicle)">
+                <div class="vehicle-icon">
+                  <i [ngClass]="vehicle.type === 'Taxi' ? 'pi pi-car' : 'pi pi-truck'"></i>
+                </div>
+                <div class="vehicle-details">
+                  <h4 class="vehicle-name">{{ vehicle.type === 'Taxi' ? 'Sedán Ejecutivo' : 'SUV Premium' }}</h4>
+                  <div class="vehicle-specs">
+                    <div class="spec-item">
+                      <i class="pi pi-users"></i>
+                      <span>Hasta {{ vehicle.maxPassengers }} pasajeros</span>
+                    </div>
+                    <div class="spec-item">
+                      <i class="pi pi-briefcase"></i>
+                      <span>{{ vehicle.luggageCapacity.large }}L / {{ vehicle.luggageCapacity.medium }}M / {{ vehicle.luggageCapacity.small }}S</span>
+                    </div>
+                  </div>
+                  <div class="vehicle-features">
+                    <span class="feature-tag">Aire acondicionado</span>
+                    <span class="feature-tag">WiFi</span>
+                    <span class="feature-tag">Chofer profesional</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resumen de Tarifa -->
+            <div class="fare-summary-card" *ngIf="calculatedFare !== null && !errorMessage">
+              <h4>Resumen de tu Reserva</h4>
+              <div class="summary-items">
+                <div class="summary-item">
+                  <span>Ruta:</span>
+                  <span>{{ bookingData.direction === 'to-airport' ? 'Hacia' : 'Desde' }} el Aeropuerto</span>
+                </div>
+                <div class="summary-item">
+                  <span>Zona:</span>
+                  <span>{{ bookingData.zoneName }}</span>
+                </div>
+                <div class="summary-item">
+                  <span>Fecha:</span>
+                  <span>{{ bookingData.departureDate }} - {{ bookingData.departureTime }}</span>
+                </div>
+                <div class="summary-item">
+                  <span>Pasajeros:</span>
+                  <span>{{ bookingData.passengers }}</span>
+                </div>
+                <div class="summary-item" *ngIf="getTotalLuggage() > 0">
+                  <span>Equipaje:</span>
+                  <span>{{ bookingData.largeLuggages }}L / {{ bookingData.mediumLuggages }}M / {{ bookingData.smallLuggages }}S</span>
+                </div>
+                <div class="summary-item">
+                  <span>Vehículo:</span>
+                  <span>{{ bookingData.vehicleType === 'Taxi' ? 'Sedán Ejecutivo' : 'SUV Premium' }}</span>
+                </div>
+              </div>
+              
+              <div class="fare-display">
+                <div class="fare-breakdown" *ngIf="bookingData.vehicleType === 'SUV'">
+                  <small>Incluye recargo del 25% por SUV</small>
+                </div>
+                <div class="fare-breakdown" *ngIf="bookingData.direction === 'from-airport'">
+                  <small>Incluye recargo de $3.000 desde aeropuerto</small>
+                </div>
+                <div class="fare-total">
+                  <span class="fare-label">Total:</span>
+                  <span class="fare-price">{{ calculatedFare | currency:'CLP':'$':'1.0-0':'es-CL' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="error-message" *ngIf="errorMessage">
+              <i class="pi pi-exclamation-triangle"></i>
+              <span>{{ errorMessage }}</span>
+            </div>
+          </div>
+          
+          <div class="step-navigation">
+            <button type="button" class="btn btn-secondary" (click)="prevStep()">
+              <i class="pi pi-arrow-left"></i> Anterior
+            </button>
+            <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canProceed() || errorMessage">
+              Continuar <i class="pi pi-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 5: Datos del Usuario -->
+        <div class="form-step" *ngIf="currentStep === 5">
+          <div class="step-content">
+            <h3 class="step-title">
+              <i class="pi pi-user"></i>
+              Datos del Pasajero Principal
+            </h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">Nombre *</label>
+                <input type="text" id="firstName" name="firstName" class="form-control" 
+                       [(ngModel)]="bookingData.user.firstName" placeholder="Ingresa tu nombre" required>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Apellido *</label>
+                <input type="text" id="lastName" name="lastName" class="form-control" 
+                       [(ngModel)]="bookingData.user.lastName" placeholder="Ingresa tu apellido" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" class="form-control" 
+                       [(ngModel)]="bookingData.user.email" placeholder="correo@ejemplo.com" required>
+              </div>
+              <div class="form-group">
+                <label for="phone">Teléfono *</label>
+                <input type="tel" id="phone" name="phone" class="form-control" 
+                       [(ngModel)]="bookingData.user.phone" placeholder="+56 9 1234 5678" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="address">Dirección específica (opcional)</label>
+              <input type="text" id="address" name="address" class="form-control" 
+                     [(ngModel)]="bookingData.user.address" 
+                     placeholder="Ej: Calle Principal 123, Depto 4B">
+              <small class="form-help">Si no especificas, el chofer te contactará para coordinar el punto de encuentro</small>
+            </div>
+
+            <!-- Resumen Final -->
+            <div class="final-summary-card" *ngIf="calculatedFare !== null">
+              <h4>Confirmación de Reserva</h4>
+              <div class="summary-grid">
+                <div class="summary-section">
+                  <h5>Detalles del Viaje</h5>
+                  <div class="summary-item">
+                    <span>Ruta:</span>
+                    <span>{{ bookingData.direction === 'to-airport' ? 'Hacia' : 'Desde' }} el Aeropuerto</span>
+                  </div>
+                  <div class="summary-item">
+                    <span>Zona:</span>
+                    <span>{{ bookingData.zoneName }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span>Fecha y Hora:</span>
+                    <span>{{ bookingData.departureDate }} a las {{ bookingData.departureTime }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span>Vehículo:</span>
+                    <span>{{ bookingData.vehicleType === 'Taxi' ? 'Sedán Ejecutivo' : 'SUV Premium' }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span>Pasajeros:</span>
+                    <span>{{ bookingData.passengers }}</span>
+                  </div>
+                  <div class="summary-item" *ngIf="getTotalLuggage() > 0">
+                    <span>Equipaje:</span>
+                    <span>{{ bookingData.largeLuggages }}L / {{ bookingData.mediumLuggages }}M / {{ bookingData.smallLuggages }}S</span>
+                  </div>
+                </div>
+
+                <div class="summary-section">
+                  <h5>Datos del Pasajero</h5>
+                  <div class="summary-item">
+                    <span>Nombre:</span>
+                    <span>{{ bookingData.user.firstName }} {{ bookingData.user.lastName }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span>Email:</span>
+                    <span>{{ bookingData.user.email }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span>Teléfono:</span>
+                    <span>{{ bookingData.user.phone }}</span>
+                  </div>
+                  <div class="summary-item" *ngIf="bookingData.user.address">
+                    <span>Dirección:</span>
+                    <span>{{ bookingData.user.address }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="final-total">
+                <span class="total-label">Total a Pagar:</span>
+                <span class="total-price">{{ calculatedFare | currency:'CLP':'$':'1.0-0':'es-CL' }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="step-navigation">
+            <button type="button" class="btn btn-secondary" (click)="prevStep()">
+              <i class="pi pi-arrow-left"></i> Anterior
+            </button>
+            <button type="submit" class="btn btn-accent btn-large" [disabled]="!canProceed() || isLoading">
+              <i class="pi pi-spin pi-spinner" *ngIf="isLoading"></i>
+              <i class="pi pi-check" *ngIf="!isLoading"></i>
+              <span *ngIf="!isLoading">Confirmar Reserva</span>
+              <span *ngIf="isLoading">Procesando...</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Popup de Confirmación de Reserva -->
+<div class="confirmation-overlay" *ngIf="showConfirmation" (click)="closeConfirmation()">
+  <div class="confirmation-popup" (click)="$event.stopPropagation()">
+    <div class="confirmation-header">
+      <div class="success-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <h2>¡Reserva Confirmada!</h2>
+      <p>Tu reserva ha sido procesada exitosamente</p>
+    </div>
+
+    <div class="confirmation-content" *ngIf="bookingConfirmation">
+      <div class="booking-id">
+        <span class="id-label">Código de Reserva:</span>
+        <span class="id-value">{{ bookingConfirmation.id }}</span>
+      </div>
+
+      <div class="confirmation-details">
+        <div class="detail-section">
+          <h4><i class="pi pi-map-marker"></i> Detalles del Viaje</h4>
+          <div class="detail-item">
+            <span>Ruta:</span>
+            <span>{{ bookingConfirmation.bookingData.direction === 'to-airport' ? 'Hacia' : 'Desde' }} el Aeropuerto</span>
+          </div>
+          <div class="detail-item">
+            <span>Zona:</span>
+            <span>{{ bookingConfirmation.bookingData.zoneName }}</span>
+          </div>
+          <div class="detail-item">
+            <span>Fecha y Hora:</span>
+            <span>{{ bookingConfirmation.bookingData.departureDate }} a las {{ bookingConfirmation.bookingData.departureTime }}</span>
+          </div>
+          <div class="detail-item">
+            <span>Vehículo:</span>
+            <span>{{ bookingConfirmation.bookingData.vehicleType === 'Taxi' ? 'Sedán Ejecutivo' : 'SUV Premium' }}</span>
+          </div>
+          <div class="detail-item">
+            <span>Pasajeros:</span>
+            <span>{{ bookingConfirmation.bookingData.passengers }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4><i class="pi pi-user"></i> Datos del Pasajero</h4>
+          <div class="detail-item">
+            <span>Nombre:</span>
+            <span>{{ bookingConfirmation.bookingData.user.firstName }} {{ bookingConfirmation.bookingData.user.lastName }}</span>
+          </div>
+          <div class="detail-item">
+            <span>Email:</span>
+            <span>{{ bookingConfirmation.bookingData.user.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span>Teléfono:</span>
+            <span>{{ bookingConfirmation.bookingData.user.phone }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="total-section">
+        <div class="total-amount">
+          <span>Total Pagado:</span>
+          <span class="amount">{{ bookingConfirmation.totalFare | currency:'CLP':'$':'1.0-0':'es-CL' }}</span>
+        </div>
+      </div>
+
+      <div class="next-steps">
+        <h4><i class="pi pi-info-circle"></i> Próximos Pasos</h4>
+        <ul>
+          <li>Recibirás un email de confirmación en {{ bookingConfirmation.bookingData.user.email }}</li>
+          <li>El chofer te contactará 30 minutos antes del viaje</li>
+          <li>Guarda tu código de reserva: <strong>{{ bookingConfirmation.id }}</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="confirmation-actions">
+      <button class="btn btn-primary" (click)="closeConfirmation()">
+        <i class="pi pi-check"></i>
+        Entendido
+      </button>
+    </div>
+  </div>
+</div>

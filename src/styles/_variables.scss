@@ -1,0 +1,71 @@
+/* === VARIABLES API-UX === */
+
+/* Colores principales API-UX */
+$apiux-blue-primary: #1a365d;      /* Azul corporativo principal */
+$apiux-blue-secondary: #2d3748;     /* Azul gris oscuro */
+$apiux-blue-light: #4299e1;        /* Azul claro */
+$apiux-yellow: #f6d45c;            /* Amarillo dorado característico */
+$apiux-yellow-hover: #ecc94b;      /* Amarillo hover */
+
+/* Grises API-UX */
+$apiux-gray-50: #f7fafc;
+$apiux-gray-100: #edf2f7;
+$apiux-gray-200: #e2e8f0;
+$apiux-gray-300: #cbd5e1;
+$apiux-gray-400: #a0aec0;
+$apiux-gray-500: #718096;
+$apiux-gray-600: #4a5568;
+$apiux-gray-700: #2d3748;
+$apiux-gray-800: #1a202c;
+$apiux-gray-900: #171923;
+
+/* Colores de texto */
+$apiux-text-primary: #1a202c;
+$apiux-text-secondary: #4a5568;
+$apiux-text-muted: #718096;
+$apiux-text-white: #ffffff;
+
+/* Fondos */
+$apiux-bg-white: #ffffff;
+$apiux-bg-light: #f7fafc;
+$apiux-bg-dark: #1a365d;
+$apiux-bg-light-gray: #edf2f7;
+$apiux-bg-medium-gray: #e2e8f0;
+
+/* Bordes y sombras */
+$apiux-border: #e2e8f0;
+$apiux-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$apiux-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$apiux-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$apiux-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+/* Fuentes */
+$apiux-font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$apiux-font-size-xs: 0.75rem;
+$apiux-font-size-sm: 0.875rem;
+$apiux-font-size-md: 1rem;
+$apiux-font-size-base: 1rem;
+$apiux-font-size-lg: 1.125rem;
+$apiux-font-size-xl: 1.25rem;
+$apiux-font-size-2xl: 1.5rem;
+$apiux-font-size-3xl: 1.875rem;
+$apiux-font-size-4xl: 2.25rem;
+$apiux-font-size-5xl: 3rem;
+
+/* Espaciados */
+$apiux-spacing-xs: 0.25rem;
+$apiux-spacing-sm: 0.5rem;
+$apiux-spacing-md: 1rem;
+$apiux-spacing-lg: 1.5rem;
+$apiux-spacing-xl: 2rem;
+$apiux-spacing-2xl: 2.5rem;
+$apiux-spacing-3xl: 3rem;
+$apiux-spacing-4xl: 4rem;
+$apiux-spacing-5xl: 5rem;
+
+/* Transiciones */
+$apiux-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$apiux-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+// RGB values for box-shadow
+$apiux-blue-primary-rgb: 26, 54, 93;

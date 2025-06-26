@@ -1,0 +1,323 @@
+/* Importaciones PrimeNG y PrimeIcons */
+@import "primeicons/primeicons.css";
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+/* === VARIABLES API-UX === */
+:root {
+  /* Colores principales API-UX */
+  --apiux-blue-primary: #1a365d;      /* Azul corporativo principal */
+  --apiux-blue-secondary: #2d3748;     /* Azul gris oscuro */
+  --apiux-blue-light: #4299e1;        /* Azul claro */
+  --apiux-yellow: #f6d45c;            /* Amarillo dorado característico */
+  --apiux-yellow-hover: #ecc94b;      /* Amarillo hover */
+  
+  /* Grises API-UX */
+  --apiux-gray-50: #f7fafc;
+  --apiux-gray-100: #edf2f7;
+  --apiux-gray-200: #e2e8f0;
+  --apiux-gray-300: #cbd5e1;
+  --apiux-gray-400: #a0aec0;
+  --apiux-gray-500: #718096;
+  --apiux-gray-600: #4a5568;
+  --apiux-gray-700: #2d3748;
+  --apiux-gray-800: #1a202c;
+  --apiux-gray-900: #171923;
+  
+  /* Colores de texto */
+  --apiux-text-primary: #1a202c;
+  --apiux-text-secondary: #4a5568;
+  --apiux-text-muted: #718096;
+  --apiux-text-white: #ffffff;
+  
+  /* Fondos */
+  --apiux-bg-white: #ffffff;
+  --apiux-bg-light: #f7fafc;
+  --apiux-bg-dark: #1a365d;
+  
+  /* Bordes y sombras */
+  --apiux-border: #e2e8f0;
+  --apiux-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --apiux-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --apiux-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --apiux-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Fuentes */
+  --apiux-font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --apiux-font-size-xs: 0.75rem;
+  --apiux-font-size-sm: 0.875rem;
+  --apiux-font-size-base: 1rem;
+  --apiux-font-size-lg: 1.125rem;
+  --apiux-font-size-xl: 1.25rem;
+  --apiux-font-size-2xl: 1.5rem;
+  --apiux-font-size-3xl: 1.875rem;
+  --apiux-font-size-4xl: 2.25rem;
+  --apiux-font-size-5xl: 3rem;
+  
+  /* Espaciados */
+  --apiux-spacing-xs: 0.25rem;
+  --apiux-spacing-sm: 0.5rem;
+  --apiux-spacing-md: 1rem;
+  --apiux-spacing-lg: 1.5rem;
+  --apiux-spacing-xl: 2rem;
+  --apiux-spacing-2xl: 2.5rem;
+  --apiux-spacing-3xl: 3rem;
+  --apiux-spacing-4xl: 4rem;
+  --apiux-spacing-5xl: 5rem;
+  
+  /* Transiciones */
+  --apiux-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --apiux-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === RESET Y BASE === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--apiux-font-family);
+  font-size: var(--apiux-font-size-base);
+  line-height: 1.7;
+  color: var(--apiux-text-secondary);
+  background-color: var(--apiux-bg-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* === TIPOGRAFÍA API-UX === */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--apiux-font-family);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--apiux-text-primary);
+  margin-bottom: var(--apiux-spacing-md);
+}
+
+h1 { font-size: var(--apiux-font-size-4xl); }
+h2 { font-size: var(--apiux-font-size-3xl); }
+h3 { font-size: var(--apiux-font-size-2xl); }
+h4 { font-size: var(--apiux-font-size-xl); }
+h5 { font-size: var(--apiux-font-size-lg); }
+h6 { font-size: var(--apiux-font-size-base); }
+
+a {
+  color: var(--apiux-blue-light);
+  text-decoration: none;
+  transition: var(--apiux-transition);
+
+  &:hover {
+    color: #3182ce;
+    text-decoration: underline;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--apiux-spacing-lg);
+}
+
+/* === BOTONES ESTILO API-UX === */
+.btn {
+  display: inline-block;
+  font-family: var(--apiux-font-family);
+  font-weight: 600;
+  font-size: var(--apiux-font-size-base);
+  padding: var(--apiux-spacing-sm) var(--apiux-spacing-xl);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--apiux-transition);
+  text-align: center;
+  white-space: nowrap;
+
+  &.btn-primary {
+    background-color: var(--apiux-yellow);
+    color: var(--apiux-blue-primary);
+    border-color: var(--apiux-yellow);
+
+    &:hover {
+      background-color: var(--apiux-yellow-hover);
+      border-color: var(--apiux-yellow-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--apiux-shadow-lg);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: var(--apiux-blue-primary);
+    color: var(--apiux-text-white);
+    border-color: var(--apiux-blue-primary);
+
+    &:hover {
+      background-color: #2c5282;
+      border-color: #2c5282;
+      transform: translateY(-2px);
+      box-shadow: var(--apiux-shadow-md);
+    }
+  }
+
+  &.btn-outline {
+    background-color: transparent;
+    color: var(--apiux-blue-primary);
+    border-color: var(--apiux-blue-primary);
+
+    &:hover {
+      background-color: var(--apiux-blue-primary);
+      color: var(--apiux-text-white);
+    }
+  }
+}
+
+/* === FORMULARIOS ESTILO API-UX === */
+.form-group {
+  margin-bottom: var(--apiux-spacing-lg);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: var(--apiux-spacing-sm) var(--apiux-spacing-md);
+  font-size: var(--apiux-font-size-base);
+  font-family: var(--apiux-font-family);
+  color: var(--apiux-text-primary);
+  background-color: var(--apiux-bg-white);
+  border: 1px solid var(--apiux-border);
+  border-radius: 8px;
+  transition: var(--apiux-transition);
+
+  &:focus {
+    outline: none;
+    border-color: var(--apiux-blue-light);
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+  }
+
+  &::placeholder {
+    color: var(--apiux-text-muted);
+  }
+}
+
+/* === SECCIONES === */
+.section {
+  padding: var(--apiux-spacing-4xl) 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: var(--apiux-spacing-3xl);
+  font-size: var(--apiux-font-size-4xl);
+  font-weight: 800;
+  color: var(--apiux-blue-primary);
+}
+
+/* === CLASES DE UTILIDAD === */
+.text-center { text-align: center; }
+.text-primary { color: var(--apiux-blue-primary); }
+.text-secondary { color: var(--apiux-text-secondary); }
+.text-white { color: var(--apiux-text-white); }
+.mb-1 { margin-bottom: var(--apiux-spacing-sm); }
+.mb-2 { margin-bottom: var(--apiux-spacing-md); }
+.mb-3 { margin-bottom: var(--apiux-spacing-lg); }
+.mt-1 { margin-top: var(--apiux-spacing-sm); }
+.mt-2 { margin-top: var(--apiux-spacing-md); }
+.mt-3 { margin-top: var(--apiux-spacing-lg); }
+
+/* === ESTILOS PARA PRIMENG (SOBRESCRIBIR) === */
+.p-component {
+  font-family: var(--apiux-font-family) !important;
+}
+
+/* Dropdown */
+.p-dropdown {
+  width: 100%;
+  border: 1px solid var(--apiux-border) !important;
+  border-radius: 8px !important;
+  transition: var(--apiux-transition) !important;
+
+  &:hover {
+    border-color: var(--apiux-gray-400) !important;
+  }
+
+  .p-dropdown-label {
+    padding: var(--apiux-spacing-sm) var(--apiux-spacing-md) !important;
+    font-size: var(--apiux-font-size-base) !important;
+    color: var(--apiux-text-primary) !important;
+  }
+
+  &.p-focus {
+    border-color: var(--apiux-blue-light) !important;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
+  }
+}
+
+.p-dropdown-panel {
+  border-radius: 8px !important;
+  box-shadow: var(--apiux-shadow-lg) !important;
+
+  .p-dropdown-item {
+    padding: var(--apiux-spacing-sm) var(--apiux-spacing-md) !important;
+    transition: var(--apiux-transition-fast) !important;
+
+    &:hover {
+      background-color: var(--apiux-gray-100) !important;
+    }
+
+    &.p-highlight {
+      background-color: var(--apiux-blue-primary) !important;
+      color: var(--apiux-text-white) !important;
+    }
+  }
+}
+
+/* Calendar */
+.p-calendar {
+  width: 100%;
+  .p-inputtext {
+    border: 1px solid var(--apiux-border) !important;
+    border-radius: 8px !important;
+    padding: var(--apiux-spacing-sm) var(--apiux-spacing-md) !important;
+    font-size: var(--apiux-font-size-base) !important;
+    color: var(--apiux-text-primary) !important;
+    transition: var(--apiux-transition) !important;
+
+    &:hover {
+      border-color: var(--apiux-gray-400) !important;
+    }
+
+    &:focus {
+      border-color: var(--apiux-blue-light) !important;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
+    }
+  }
+}
+
+/* InputNumber */
+.p-inputnumber {
+  width: 100%;
+  .p-inputtext {
+    border: 1px solid var(--apiux-border) !important;
+    border-radius: 8px !important;
+    padding: var(--apiux-spacing-sm) var(--apiux-spacing-md) !important;
+    font-size: var(--apiux-font-size-base) !important;
+    color: var(--apiux-text-primary) !important;
+    transition: var(--apiux-transition) !important;
+
+    &:hover {
+      border-color: var(--apiux-gray-400) !important;
+    }
+
+    &:focus {
+      border-color: var(--apiux-blue-light) !important;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2) !important;
+    }
+  }
+}
