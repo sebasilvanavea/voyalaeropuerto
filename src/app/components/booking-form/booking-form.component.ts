@@ -25,10 +25,19 @@ interface BookingFormData {
   user: UserData;
 }
 
+interface FareBreakdown {
+  baseFare: number;
+  vehicleSurcharge: number;
+  directionSurcharge: number;
+  subtotal: number;
+  total: number;
+}
+
 interface BookingConfirmation {
   id: string;
   bookingData: BookingFormData;
   totalFare: number;
+  fareBreakdown: FareBreakdown;
   createdAt: Date;
   status: 'confirmed';
 }
@@ -56,6 +65,7 @@ export class BookingFormComponent implements OnInit {  currentStep = 1;
   zones: Zone[] = [];
   vehicles: Vehicle[] = [];
   calculatedFare: number | null = null;
+  fareBreakdown: FareBreakdown | null = null;
   errorMessage: string | null = null;
 
   bookingData: BookingFormData = {
@@ -107,10 +117,13 @@ export class BookingFormComponent implements OnInit {  currentStep = 1;
   calculateFare(): void {
     this.errorMessage = null;
     this.calculatedFare = null;
+    this.fareBreakdown = null;
 
     if (!this.bookingData.zoneName || !this.bookingData.vehicleType) {
       return;
-    }    try {
+    }
+
+    try {
       const fare = this.bookingService.calculateFare(
         this.bookingData.zoneName,
         this.bookingData.vehicleType,
@@ -120,10 +133,44 @@ export class BookingFormComponent implements OnInit {  currentStep = 1;
         this.bookingData.mediumLuggages,
         this.bookingData.smallLuggages
       );
+      
       this.calculatedFare = fare;
+      this.fareBreakdown = this.calculateFareBreakdown();
     } catch (error: any) {
       this.errorMessage = error.message;
     }
+  }
+
+  calculateFareBreakdown(): FareBreakdown {
+    const zone = this.zones.find(z => z.name === this.bookingData.zoneName);
+    if (!zone) {
+      throw new Error('Zona no encontrada');
+    }
+
+    const baseFare = zone.price;
+    let vehicleSurcharge = 0;
+    let directionSurcharge = 0;
+
+    // Recargo por vehículo SUV (25%)
+    if (this.bookingData.vehicleType === 'SUV') {
+      vehicleSurcharge = Math.round(baseFare * 0.25);
+    }
+
+    // Recargo por viaje desde el aeropuerto
+    if (this.bookingData.direction === 'from-airport') {
+      directionSurcharge = 3000; // FARE_CONFIG.fromAirportSurcharge
+    }
+
+    const subtotal = baseFare + vehicleSurcharge;
+    const total = subtotal + directionSurcharge;
+
+    return {
+      baseFare,
+      vehicleSurcharge,
+      directionSurcharge,
+      subtotal,
+      total: Math.round(total)
+    };
   }
 
   updatePassengers(change: number): void {
@@ -190,7 +237,7 @@ export class BookingFormComponent implements OnInit {  currentStep = 1;
     return this.bookingData.largeLuggages + this.bookingData.mediumLuggages + this.bookingData.smallLuggages;
   }
   bookNow(): void {
-    if (this.canProceed() && this.calculatedFare !== null) {
+    if (this.canProceed() && this.calculatedFare !== null && this.fareBreakdown !== null) {
       this.isLoading = true;
       this.errorMessage = null;
       
@@ -203,6 +250,7 @@ export class BookingFormComponent implements OnInit {  currentStep = 1;
           id: this.generateBookingId(),
           bookingData: { ...this.bookingData },
           totalFare: this.calculatedFare!,
+          fareBreakdown: { ...this.fareBreakdown! },
           createdAt: new Date(),
           status: 'confirmed'
         };
@@ -238,6 +286,7 @@ export class BookingFormComponent implements OnInit {  currentStep = 1;
   resetForm(): void {
     this.currentStep = 1;
     this.calculatedFare = null;
+    this.fareBreakdown = null;
     this.errorMessage = null;
     this.bookingConfirmation = null;
     
@@ -259,5 +308,38 @@ export class BookingFormComponent implements OnInit {  currentStep = 1;
         address: ''
       }
     };
+  }
+
+  // Método para formatear montos en pesos chilenos
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  }
+
+  // Método para obtener la descripción del recargo de vehículo
+  getVehicleSurchargeDescription(): string {
+    if (this.bookingData.vehicleType === 'SUV') {
+      return 'Recargo SUV (25%)';
+    }
+    return '';
+  }
+
+  // Método para obtener la descripción del recargo de dirección
+  getDirectionSurchargeDescription(): string {
+    if (this.bookingData.direction === 'from-airport') {
+      return 'Recargo desde aeropuerto';
+    }
+    return '';
+  }
+
+  // Método para verificar si hay recargos
+  hasAnyCharges(): boolean {
+    return this.fareBreakdown ? 
+      (this.fareBreakdown.vehicleSurcharge > 0 || this.fareBreakdown.directionSurcharge > 0) : 
+      false;
   }
 }

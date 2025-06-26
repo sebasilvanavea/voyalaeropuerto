@@ -273,18 +273,52 @@
                 </div>
               </div>
               
-              <div class="fare-display">
-                <div class="fare-breakdown" *ngIf="bookingData.vehicleType === 'SUV'">
-                  <small>Incluye recargo del 25% por SUV</small>
+              <!-- Desglose de Tarifa Detallado -->
+              <div class="fare-breakdown-section" *ngIf="fareBreakdown">
+                <h5><i class="pi pi-calculator"></i> Desglose de Tarifa</h5>
+                <div class="breakdown-items">
+                  <div class="breakdown-item">
+                    <span class="breakdown-label">
+                      <i class="pi pi-map-marker"></i>
+                      Tarifa base ({{ bookingData.zoneName }})
+                    </span>
+                    <span class="breakdown-value">{{ formatCurrency(fareBreakdown.baseFare) }}</span>
+                  </div>
+                  
+                  <div class="breakdown-item" *ngIf="fareBreakdown.vehicleSurcharge > 0">
+                    <span class="breakdown-label">
+                      <i class="pi pi-plus"></i>
+                      {{ getVehicleSurchargeDescription() }}
+                    </span>
+                    <span class="breakdown-value">{{ formatCurrency(fareBreakdown.vehicleSurcharge) }}</span>
+                  </div>
+                  
+                  <div class="breakdown-separator" *ngIf="fareBreakdown.vehicleSurcharge > 0 || fareBreakdown.directionSurcharge > 0"></div>
+                  
+                  <div class="breakdown-item subtotal" *ngIf="fareBreakdown.vehicleSurcharge > 0">
+                    <span class="breakdown-label">Subtotal</span>
+                    <span class="breakdown-value">{{ formatCurrency(fareBreakdown.subtotal) }}</span>
+                  </div>
+                  
+                  <div class="breakdown-item" *ngIf="fareBreakdown.directionSurcharge > 0">
+                    <span class="breakdown-label">
+                      <i class="pi pi-plus"></i>
+                      {{ getDirectionSurchargeDescription() }}
+                    </span>
+                    <span class="breakdown-value">{{ formatCurrency(fareBreakdown.directionSurcharge) }}</span>
+                  </div>
                 </div>
-                <div class="fare-breakdown" *ngIf="bookingData.direction === 'from-airport'">
-                  <small>Incluye recargo de $3.000 desde aeropuerto</small>
-                </div>
-                <div class="fare-total">
-                  <span class="fare-label">Total:</span>
-                  <span class="fare-price">{{ calculatedFare | currency:'CLP':'$':'1.0-0':'es-CL' }}</span>
+                
+                <div class="breakdown-total">
+                  <span class="total-label">
+                    <i class="pi pi-money-bill"></i>
+                    Total a Pagar
+                  </span>
+                  <span class="total-amount">{{ formatCurrency(fareBreakdown.total) }}</span>
                 </div>
               </div>
+              
+
             </div>
 
             <div class="error-message" *ngIf="errorMessage">
@@ -398,9 +432,42 @@
                 </div>
               </div>
               
+              <!-- Desglose de Tarifa Final -->
+              <div class="final-fare-breakdown" *ngIf="fareBreakdown">
+                <h5><i class="pi pi-calculator"></i> Desglose de Tarifa</h5>
+                <div class="breakdown-items">
+                  <div class="breakdown-item">
+                    <span class="breakdown-label">
+                      Tarifa base ({{ bookingData.zoneName }})
+                    </span>
+                    <span class="breakdown-value">{{ formatCurrency(fareBreakdown.baseFare) }}</span>
+                  </div>
+                  
+                  <div class="breakdown-item" *ngIf="fareBreakdown.vehicleSurcharge > 0">
+                    <span class="breakdown-label">
+                      {{ getVehicleSurchargeDescription() }}
+                    </span>
+                    <span class="breakdown-value">{{ formatCurrency(fareBreakdown.vehicleSurcharge) }}</span>
+                  </div>
+                  
+                  <div class="breakdown-item" *ngIf="fareBreakdown.directionSurcharge > 0">
+                    <span class="breakdown-label">
+                      {{ getDirectionSurchargeDescription() }}
+                    </span>
+                    <span class="breakdown-value">{{ formatCurrency(fareBreakdown.directionSurcharge) }}</span>
+                  </div>
+                </div>
+              </div>
+              
               <div class="final-total">
                 <span class="total-label">Total a Pagar:</span>
-                <span class="total-price">{{ calculatedFare | currency:'CLP':'$':'1.0-0':'es-CL' }}</span>
+                <span class="total-price">{{ formatCurrency(fareBreakdown?.total || calculatedFare || 0) }}</span>
+              </div>
+
+              <!-- Mensaje de pre-agradecimiento -->
+              <div class="pre-thank-you">
+                <i class="pi pi-check-circle"></i>
+                <p>Al confirmar tu reserva, estarás un paso más cerca de tu destino. ¡Gracias por elegirnos!</p>
               </div>
             </div>
           </div>
@@ -483,9 +550,49 @@
       </div>
 
       <div class="total-section">
-        <div class="total-amount">
-          <span>Total Pagado:</span>
-          <span class="amount">{{ bookingConfirmation.totalFare | currency:'CLP':'$':'1.0-0':'es-CL' }}</span>
+        <!-- Desglose de Tarifa en Confirmación -->
+        <div class="confirmation-fare-breakdown" *ngIf="bookingConfirmation.fareBreakdown">
+          <h4><i class="pi pi-calculator"></i> Desglose de Tarifa</h4>
+          <div class="breakdown-items">
+            <div class="breakdown-item">
+              <span class="breakdown-label">
+                <i class="pi pi-map-marker"></i>
+                Tarifa base ({{ bookingConfirmation.bookingData.zoneName }})
+              </span>
+              <span class="breakdown-value">{{ formatCurrency(bookingConfirmation.fareBreakdown.baseFare) }}</span>
+            </div>
+            
+            <div class="breakdown-item" *ngIf="bookingConfirmation.fareBreakdown.vehicleSurcharge > 0">
+              <span class="breakdown-label">
+                <i class="pi pi-plus"></i>
+                Recargo SUV (25%)
+              </span>
+              <span class="breakdown-value">+ {{ formatCurrency(bookingConfirmation.fareBreakdown.vehicleSurcharge) }}</span>
+            </div>
+            
+            <div class="breakdown-separator" *ngIf="bookingConfirmation.fareBreakdown.vehicleSurcharge > 0 && bookingConfirmation.fareBreakdown.directionSurcharge > 0"></div>
+            
+            <div class="breakdown-item subtotal" *ngIf="bookingConfirmation.fareBreakdown.vehicleSurcharge > 0">
+              <span class="breakdown-label">Subtotal</span>
+              <span class="breakdown-value">{{ formatCurrency(bookingConfirmation.fareBreakdown.subtotal) }}</span>
+            </div>
+            
+            <div class="breakdown-item" *ngIf="bookingConfirmation.fareBreakdown.directionSurcharge > 0">
+              <span class="breakdown-label">
+                <i class="pi pi-plus"></i>
+                Recargo desde aeropuerto
+              </span>
+              <span class="breakdown-value">+ {{ formatCurrency(bookingConfirmation.fareBreakdown.directionSurcharge) }}</span>
+            </div>
+          </div>
+          
+          <div class="breakdown-total-confirmation">
+            <span class="total-label">
+              <i class="pi pi-money-bill"></i>
+              Total Final
+            </span>
+            <span class="total-amount">{{ formatCurrency(bookingConfirmation.fareBreakdown.total) }}</span>
+          </div>
         </div>
       </div>
 
@@ -496,6 +603,17 @@
           <li>El chofer te contactará 30 minutos antes del viaje</li>
           <li>Guarda tu código de reserva: <strong>{{ bookingConfirmation.id }}</strong></li>
         </ul>
+      </div>
+
+      <div class="thank-you-message">
+        <div class="thank-you-content">
+          <i class="pi pi-heart"></i>
+          <h4>¡Gracias por Confiar en Nosotros!</h4>
+          <p>Nos complace ser parte de tu viaje. Nuestro equipo se encargará de brindarte el mejor servicio de traslado al aeropuerto.</p>
+          <div class="contact-support">
+            <small>¿Necesitas ayuda? Contáctanos al <strong>+56 9 1234 5678</strong> o <strong>info&#64;aeropuerto.com</strong></small>
+          </div>
+        </div>
       </div>
     </div>
 
