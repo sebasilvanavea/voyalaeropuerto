@@ -1,28 +1,28 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-services',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule],
   template: `
     <!-- Services Section -->
     <section id="servicios" class="py-20 bg-gray-50 scroll-mt-20">
       <div class="max-w-7xl mx-auto px-6 lg:px-8">
         <div class="text-center mb-16">
           <span class="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold mb-4">
-            Nuestros Servicios
+            {{ 'SERVICES.SECTION_BADGE' | translate }}
           </span>
           <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Encuentre el talento adecuado en el lugar correcto con 
+            {{ 'SERVICES.TITLE_PART_1' | translate }}
             <span class="bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">
-              VoyalAeropuerto.
+              {{ 'SERVICES.TITLE_PART_2' | translate }}
             </span>
           </h2>
           <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-            Reimaginamos los servicios de traslado convencionales, para que puedas acceder 
-            al transporte confiable y puntual que complementará perfectamente tu viaje.
+            {{ 'SERVICES.SUBTITLE' | translate }}
           </p>
         </div>
 
@@ -33,8 +33,8 @@ import { RouterModule } from '@angular/router';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Traslado al Aeropuerto</h3>
-            <p class="text-gray-600">Servicio directo y confiable desde tu ubicación hasta el aeropuerto con puntualidad garantizada.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">{{ 'SERVICES.SERVICE_1_TITLE' | translate }}</h3>
+            <p class="text-gray-600">{{ 'SERVICES.SERVICE_1_DESC' | translate }}</p>
           </div>
 
           <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 service-card">
@@ -44,8 +44,8 @@ import { RouterModule } from '@angular/router';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Pickup Personalizado</h3>
-            <p class="text-gray-600">Recogida en tu ubicación exacta con conductores profesionales y vehículos modernos.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">{{ 'SERVICES.SERVICE_2_TITLE' | translate }}</h3>
+            <p class="text-gray-600">{{ 'SERVICES.SERVICE_2_DESC' | translate }}</p>
           </div>
 
           <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 service-card">
@@ -54,21 +54,20 @@ import { RouterModule } from '@angular/router';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Monitoreo en Tiempo Real</h3>
-            <p class="text-gray-600">Seguimiento en vivo de tu viaje y notificaciones automáticas para total tranquilidad.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">{{ 'SERVICES.SERVICE_3_TITLE' | translate }}</h3>
+            <p class="text-gray-600">{{ 'SERVICES.SERVICE_3_DESC' | translate }}</p>
           </div>
         </div>
 
         <div class="text-center">
           <p class="text-lg text-gray-600 mb-8">
-            Por estar Cerca, podemos garantizar transporte altamente calificado y económico 
-            que cumplirá perfectamente con tus expectativas.
+            {{ 'SERVICES.BOTTOM_TEXT' | translate }}
           </p>
           <div class="inline-flex items-center bg-gray-100 rounded-full px-6 py-3">
-            <span class="text-gray-700">No necesitas solo llegar, necesitas llegar bien.</span>
+            <span class="text-gray-700">{{ 'SERVICES.CTA_TEXT' | translate }}</span>
             <button (click)="scrollToSection('reserva')" 
                     class="ml-4 px-6 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-full hover:shadow-lg transition-all duration-300">
-              ¡Llegar bien!
+              {{ 'SERVICES.CTA_BUTTON' | translate }}
             </button>
           </div>
         </div>

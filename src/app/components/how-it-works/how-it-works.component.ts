@@ -1,20 +1,21 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-how-it-works',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   template: `
     <!-- How it Works Section -->
     <section id="como-funciona" class="py-20 bg-white scroll-mt-20">
       <div class="max-w-7xl mx-auto px-6 lg:px-8">
         <div class="text-center mb-16">
           <span class="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold mb-4">
-            Nuestra propuesta de valor: ¿por qué nosotros?
+            {{ 'HOW_IT_WORKS.SECTION_BADGE' | translate }}
           </span>
           <h2 class="text-4xl md:text-5xl font-bold text-gray-900">
-            Cómo lo hacemos realidad
+            {{ 'HOW_IT_WORKS.TITLE' | translate }}
           </h2>
         </div>
 
@@ -27,10 +28,9 @@ import { CommonModule } from '@angular/common';
                 </svg>
               </div>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-4">IA impulsada por afinidad</h3>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">{{ 'HOW_IT_WORKS.STEP_1_TITLE' | translate }}</h3>
             <p class="text-gray-600">
-              Revolucionamos el proceso de encontrar el conductor perfecto a través de IA. 
-              Identificamos conductores destacados y encontramos la combinación ganadora para tus necesidades.
+              {{ 'HOW_IT_WORKS.STEP_1_DESC' | translate }}
             </p>
           </div>
 
@@ -42,10 +42,9 @@ import { CommonModule } from '@angular/common';
                 </svg>
               </div>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Innovación enfocada en el viajero</h3>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">{{ 'HOW_IT_WORKS.STEP_2_TITLE' | translate }}</h3>
             <p class="text-gray-600">
-              Nos dedicamos a transformar la experiencia de traslados al aeropuerto, 
-              sector hotelero y servicios de transporte turístico.
+              {{ 'HOW_IT_WORKS.STEP_2_DESC' | translate }}
             </p>
           </div>
 
@@ -57,10 +56,9 @@ import { CommonModule } from '@angular/common';
                 </svg>
               </div>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Liderando la revolución del transporte</h3>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">{{ 'HOW_IT_WORKS.STEP_3_TITLE' | translate }}</h3>
             <p class="text-gray-600">
-              Desbloquea el poder de estas tecnologías de vanguardia con la amplia experiencia 
-              de nuestros equipos expertos.
+              {{ 'HOW_IT_WORKS.STEP_3_DESC' | translate }}
             </p>
           </div>
 
@@ -72,10 +70,9 @@ import { CommonModule } from '@angular/common';
                 </svg>
               </div>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-4">Costo-eficiente, pero más inteligente</h3>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">{{ 'HOW_IT_WORKS.STEP_4_TITLE' | translate }}</h3>
             <p class="text-gray-600">
-              Maximiza la eficiencia de costos al alcanzar tus objetivos de transporte 
-              con flexibilidad y acceso instantáneo a conductores de primer nivel.
+              {{ 'HOW_IT_WORKS.STEP_4_DESC' | translate }}
             </p>
           </div>
         </div>

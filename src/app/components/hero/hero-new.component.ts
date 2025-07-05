@@ -41,26 +41,26 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
             <!-- Main Title inspired by apiux.io -->
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight hero-title">
               <span class="text-white">
-                Revolucionamos los
+                {{ 'HERO.TITLE_PART_1' | translate }}
               </span>
               <br>
               <span class="bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">
-                traslados
+                {{ 'HERO.TITLE_PART_2' | translate }}
               </span>
               <br>
               <span class="text-white">
-                al aeropuerto con
+                {{ 'HERO.TITLE_PART_3' | translate }}
               </span>
               <br>
               <span class="bg-gradient-to-r from-amber-500 to-yellow-600 bg-clip-text text-transparent">
-                tecnología avanzada
+                {{ 'HERO.TITLE_PART_4' | translate }}
               </span>
             </h1>
             
             <!-- Subtitle -->
             <p class="text-xl md:text-2xl text-white leading-relaxed font-medium hero-subtitle max-w-2xl">
-              Conectamos viajeros con conductores profesionales a través de una plataforma inteligente. 
-              <span class="text-yellow-600 font-semibold">Viaja con confianza</span> y llega a tiempo con nuestro servicio premium de traslados.
+              {{ 'HERO.SUBTITLE_PART_1' | translate }}
+              <span class="text-yellow-600 font-semibold">{{ 'HERO.SUBTITLE_PART_2' | translate }}</span> {{ 'HERO.SUBTITLE_PART_3' | translate }}
             </p>
             
             <!-- Key Features -->
@@ -72,8 +72,8 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                   </svg>
                 </div>
                 <div>
-                  <p class="text-white font-semibold">Puntualidad garantizada</p>
-                  <p class="text-white text-sm">Llegamos siempre a tiempo</p>
+                  <p class="text-white font-semibold">{{ 'HERO.FEATURE_1_TITLE' | translate }}</p>
+                  <p class="text-white text-sm">{{ 'HERO.FEATURE_1_DESC' | translate }}</p>
                 </div>
               </div>
               
@@ -84,8 +84,8 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                   </svg>
                 </div>
                 <div>
-                  <p class="text-white font-semibold">100% Seguro</p>
-                  <p class="text-white text-sm">Conductores verificados</p>
+                  <p class="text-white font-semibold">{{ 'HERO.FEATURE_2_TITLE' | translate }}</p>
+                  <p class="text-white text-sm">{{ 'HERO.FEATURE_2_DESC' | translate }}</p>
                 </div>
               </div>
               
@@ -96,8 +96,8 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                   </svg>
                 </div>
                 <div>
-                  <p class="text-white font-semibold">Precios fijos</p>
-                  <p class="text-white text-sm">Sin sorpresas ni extras</p>
+                  <p class="text-white font-semibold">{{ 'HERO.FEATURE_3_TITLE' | translate }}</p>
+                  <p class="text-white text-sm">{{ 'HERO.FEATURE_3_DESC' | translate }}</p>
                 </div>
               </div>
               
@@ -108,8 +108,8 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                   </svg>
                 </div>
                 <div>
-                  <p class="text-white font-semibold">Disponible 24/7</p>
-                  <p class="text-white text-sm">Servicio ininterrumpido</p>
+                  <p class="text-white font-semibold">{{ 'HERO.FEATURE_4_TITLE' | translate }}</p>
+                  <p class="text-white text-sm">{{ 'HERO.FEATURE_4_DESC' | translate }}</p>
                 </div>
               </div>
             </div>
@@ -121,7 +121,7 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                 <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
-                <span>Reservar Ahora</span>
+                <span>{{ 'HERO.BOOK_NOW' | translate }}</span>
               </button>
               
               <button (click)="scrollToSection('contacto')" 
@@ -129,7 +129,7 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                 <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                 </svg>
-                Contáctanos
+                {{ 'HERO.CONTACT_US' | translate }}
               </button>
             </div>
 

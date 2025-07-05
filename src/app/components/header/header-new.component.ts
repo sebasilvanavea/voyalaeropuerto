@@ -37,7 +37,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                         'text-gray-900': isScrolled,
                         'text-white drop-shadow-lg': !isScrolled
                       }">
-                  <span class="xs:hidden">VA</span>
+                  <span class="xs:hidden">VoyalAeropuerto</span>
                   <span class="hidden xs:inline sm:hidden">VoyalAeropuerto</span>
                   <span class="hidden sm:inline lg:hidden">VoyalAeropuerto</span>
                   <span class="hidden lg:inline">VoyalAeropuerto</span>
@@ -60,7 +60,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10 drop-shadow-sm': !isScrolled
                }">
-              Inicio
+              {{ 'NAV.HOME' | translate }}
               <span class="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center rounded-full"></span>
             </a>
             <a (click)="scrollToSection('servicios')" 
@@ -69,7 +69,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10 drop-shadow-sm': !isScrolled
                }">
-              Servicios
+              {{ 'NAV.SERVICES' | translate }}
               <span class="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center rounded-full"></span>
             </a>
             <a (click)="scrollToSection('cotizar')" 
@@ -78,7 +78,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10 drop-shadow-sm': !isScrolled
                }">
-              Cotizar
+              {{ 'NAV.QUOTE' | translate }}
               <span class="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center rounded-full"></span>
             </a>
             <a (click)="scrollToSection('como-funciona')" 
@@ -87,7 +87,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10 drop-shadow-sm': !isScrolled
                }">
-              Cómo Funciona
+              {{ 'NAV.HOW_IT_WORKS' | translate }}
               <span class="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center rounded-full"></span>
             </a>
           </nav>
@@ -136,8 +136,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
               <svg class="w-3 h-3 lg:w-4 lg:h-4 mr-1 lg:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
               </svg>
-              <span class="hidden lg:inline">Contáctanos</span>
-              <span class="lg:hidden">Contacto</span>
+              <span class="hidden lg:inline">{{ 'NAV.CONTACT' | translate }}</span>
+              <span class="lg:hidden">{{ 'NAV.CONTACT' | translate }}</span>
             </button>
 
             <!-- CTA Button - Responsive -->
@@ -146,8 +146,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
               <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 13a2 2 0 002 2h6a2 2 0 002-2L14 7"/>
               </svg>
-              <span class="hidden sm:inline">Reservar Ahora</span>
-              <span class="sm:hidden">Reservar</span>
+              <span class="hidden sm:inline">{{ 'NAV.BOOK_NOW' | translate }}</span>
+              <span class="sm:hidden">{{ 'BOOKING.SUBMIT' | translate }}</span>
             </button>
 
             <!-- Mobile menu button -->
@@ -179,7 +179,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10': !isScrolled
                }">
-              Inicio
+              {{ 'NAV.HOME' | translate }}
             </a>
             <a (click)="scrollToSection('servicios'); toggleMobileMenu()"
                class="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-700 ease-in-out cursor-pointer font-medium text-sm sm:text-base"
@@ -187,7 +187,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10': !isScrolled
                }">
-              Servicios
+              {{ 'NAV.SERVICES' | translate }}
             </a>
             <a (click)="scrollToSection('cotizar'); toggleMobileMenu()"
                class="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-700 ease-in-out cursor-pointer font-medium text-sm sm:text-base"
@@ -195,7 +195,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10': !isScrolled
                }">
-              Cotizar
+              {{ 'NAV.QUOTE' | translate }}
             </a>
             <a (click)="scrollToSection('como-funciona'); toggleMobileMenu()"
                class="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-700 ease-in-out cursor-pointer font-medium text-sm sm:text-base"
@@ -203,7 +203,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10': !isScrolled
                }">
-              Cómo Funciona
+              {{ 'NAV.HOW_IT_WORKS' | translate }}
             </a>
             <a (click)="scrollToSection('contacto'); toggleMobileMenu()"
                class="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-700 ease-in-out cursor-pointer font-medium text-sm sm:text-base"
@@ -211,7 +211,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                  'text-gray-700 hover:text-gray-900 hover:bg-gray-50': isScrolled,
                  'text-white/90 hover:text-white hover:bg-white/10': !isScrolled
                }">
-              Contacto
+              {{ 'NAV.CONTACT' | translate }}
             </a>
             
             <div class="pt-3 sm:pt-4 border-t transition-all duration-700 ease-in-out"
@@ -256,7 +256,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 13a2 2 0 002 2h6a2 2 0 002-2L14 7"/>
                 </svg>
-                <span>Reservar Ahora</span>
+                <span>{{ 'NAV.BOOK_NOW' | translate }}</span>
               </button>
             </div>
           </div>

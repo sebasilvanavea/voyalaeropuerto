@@ -18,8 +18,8 @@ import { TranslateModule } from '@ngx-translate/core';
             </svg>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-gray-900">Reserva tu Traslado</h3>
-            <p class="text-sm text-yellow-600">Rápido y seguro</p>
+            <h3 class="text-lg font-bold text-gray-900">{{ 'BOOKING_CARD.TITLE' | translate }}</h3>
+            <p class="text-sm text-yellow-600">{{ 'BOOKING_CARD.SUBTITLE' | translate }}</p>
           </div>
         </div>
       </div>
@@ -33,8 +33,8 @@ import { TranslateModule } from '@ngx-translate/core';
             </svg>
           </div>
           <div class="step-content">
-            <span class="step-title">Elige tu ruta</span>
-            <span class="step-desc">Aeropuerto ↔ Destino</span>
+            <span class="step-title">{{ 'BOOKING_CARD.STEP_1_TITLE' | translate }}</span>
+            <span class="step-desc">{{ 'BOOKING_CARD.STEP_1_DESC' | translate }}</span>
           </div>
         </div>
 
@@ -45,8 +45,8 @@ import { TranslateModule } from '@ngx-translate/core';
             </svg>
           </div>
           <div class="step-content">
-            <span class="step-title">Selecciona vehículo</span>
-            <span class="step-desc">Sedan, SUV o Van</span>
+            <span class="step-title">{{ 'BOOKING_CARD.STEP_2_TITLE' | translate }}</span>
+            <span class="step-desc">{{ 'BOOKING_CARD.STEP_2_DESC' | translate }}</span>
           </div>
         </div>
 
@@ -57,8 +57,8 @@ import { TranslateModule } from '@ngx-translate/core';
             </svg>
           </div>
           <div class="step-content">
-            <span class="step-title">Fecha y hora</span>
-            <span class="step-desc">Disponible 24/7</span>
+            <span class="step-title">{{ 'BOOKING_CARD.STEP_3_TITLE' | translate }}</span>
+            <span class="step-desc">{{ 'BOOKING_CARD.STEP_3_DESC' | translate }}</span>
           </div>
         </div>
       </div>
@@ -69,25 +69,25 @@ import { TranslateModule } from '@ngx-translate/core';
           <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
-          <span>Precios fijos</span>
+          <span>{{ 'BOOKING_CARD.FEATURE_1' | translate }}</span>
         </div>
         <div class="feature-item">
           <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
-          <span>Sin sorpresas</span>
+          <span>{{ 'BOOKING_CARD.FEATURE_2' | translate }}</span>
         </div>
         <div class="feature-item">
           <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
-          <span>Puntualidad</span>
+          <span>{{ 'BOOKING_CARD.FEATURE_3' | translate }}</span>
         </div>
         <div class="feature-item">
           <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
-          <span>Seguimiento</span>
+          <span>{{ 'BOOKING_CARD.FEATURE_4' | translate }}</span>
         </div>
       </div>
 
@@ -100,7 +100,7 @@ import { TranslateModule } from '@ngx-translate/core';
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 13a2 2 0 002 2h6a2 2 0 002-2L14 7"/>
             </svg>
-            <span>Reservar Ahora</span>
+            <span>{{ 'BOOKING_CARD.BOOK_NOW' | translate }}</span>
           </span>
           <div class="button-overlay"></div>
         </button>
@@ -111,7 +111,7 @@ import { TranslateModule } from '@ngx-translate/core';
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
           </svg>
-          Ver Precios
+          {{ 'BOOKING_CARD.VIEW_PRICES' | translate }}
         </button>
       </div>
 
@@ -121,7 +121,7 @@ import { TranslateModule } from '@ngx-translate/core';
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
           </svg>
-          <span>Reserva 100% segura</span>
+          <span>{{ 'BOOKING_CARD.SECURE_BOOKING' | translate }}</span>
         </div>
       </div>
     </div>

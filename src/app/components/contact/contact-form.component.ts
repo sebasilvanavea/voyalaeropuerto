@@ -2,20 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ContactService } from '../../services/contact.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-contact-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   template: `
     <!-- Contact Form - Ultra Compacto y Responsivo -->
     <div class="contact-form-container">
       <div class="contact-form-header">
         <h3 class="contact-form-title">
-          ✨ Envíanos un mensaje
+          {{ 'CONTACT.FORM.TITLE' | translate }}
         </h3>
         <p class="contact-form-subtitle">
-          Te respondemos en menos de 24 horas
+          {{ 'CONTACT.FORM.SUBTITLE' | translate }}
         </p>
       </div>
 
@@ -23,13 +24,13 @@ import { ContactService } from '../../services/contact.service';
         <!-- Nombre y Email en fila -->
         <div class="input-row">
           <div class="input-group">
-            <label for="name" class="input-label">Nombre *</label>
+            <label for="name" class="input-label">{{ 'CONTACT.FORM.NAME' | translate }} *</label>
             <input 
               id="name"
               type="text" 
               formControlName="name"
               class="input-field"
-              placeholder="Tu nombre"
+              [placeholder]="'CONTACT.FORM.NAME' | translate"
               autocomplete="name"
             >
             <div *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched" 
@@ -37,12 +38,12 @@ import { ContactService } from '../../services/contact.service';
               <svg class="error-icon" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
               </svg>
-              Nombre requerido
+              {{ 'CONTACT.FORM.NAME_REQUIRED' | translate }}
             </div>
           </div>
 
           <div class="input-group">
-            <label for="email" class="input-label">Email *</label>
+            <label for="email" class="input-label">{{ 'CONTACT.FORM.EMAIL' | translate }} *</label>
             <input 
               id="email"
               type="email" 
@@ -56,7 +57,7 @@ import { ContactService } from '../../services/contact.service';
               <svg class="error-icon" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
               </svg>
-              Email válido requerido
+              {{ 'CONTACT.FORM.EMAIL_REQUIRED' | translate }}
             </div>
           </div>
         </div>
@@ -64,7 +65,7 @@ import { ContactService } from '../../services/contact.service';
         <!-- Teléfono y Servicio en fila -->
         <div class="input-row">
           <div class="input-group">
-            <label for="phone" class="input-label">Teléfono</label>
+            <label for="phone" class="input-label">{{ 'CONTACT.FORM.PHONE' | translate }}</label>
             <input 
               id="phone"
               type="tel" 

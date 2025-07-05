@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
+  imports: [TranslateModule],
   template: `
     <footer class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
       <!-- Background decoration -->
@@ -26,7 +28,7 @@ import { Component } from '@angular/core';
               </h3>
             </div>
             <p class="text-slate-300 text-sm leading-relaxed max-w-xs">
-              Tu compañero confiable para traslados al aeropuerto. Viaja con comodidad, puntualidad y seguridad.
+              {{ 'FOOTER.COMPANY_DESC' | translate }}
             </p>
             <div class="flex space-x-3">
               <a href="#" class="group w-10 h-10 bg-gray-800 hover:bg-gradient-to-r hover:from-amber-500 hover:to-yellow-500 rounded-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110">
