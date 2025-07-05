@@ -1,0 +1,16 @@
+/* Estilos específicos para el componente Home - Container principal */
+
+/* Smooth scroll global */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Container principal de home */
+.min-h-screen {
+  min-height: 100vh;
+}
+
+/* Asegurar que las secciones se apilen correctamente */
+.bg-white {
+  background-color: white;
+}

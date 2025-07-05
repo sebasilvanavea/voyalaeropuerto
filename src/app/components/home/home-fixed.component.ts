@@ -1,0 +1,62 @@
+import { Component, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
+// Import individual section components
+import { HeroNewComponent } from '../hero/hero-new.component';
+import { TrustedSectionComponent } from '../trusted-section/trusted-section.component';
+import { ServicesComponent } from '../services/services.component';
+import { HowItWorksComponent } from '../how-it-works/how-it-works.component';
+import { BookingSectionComponent } from '../booking-section/booking-section.component';
+import { QuoteSectionComponent } from '../quote-section/quote-section.component';
+import { ContactSectionComponent } from '../contact-section/contact-section.component';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [
+    CommonModule,
+    TranslateModule,
+    HeroNewComponent,
+    TrustedSectionComponent,
+    ServicesComponent,
+    HowItWorksComponent,
+    BookingSectionComponent,
+    QuoteSectionComponent,
+    ContactSectionComponent
+  ],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
+
+  constructor(private translate: TranslateService, private cd: ChangeDetectorRef) {
+    this.translate.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.cd.markForCheck();
+      });
+  }
+
+  scrollToSection(sectionId: string): void {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const headerOffset = 80; // Altura del header fijo
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}

@@ -1,0 +1,7 @@
+<!-- Bandera de Brasil (PT) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40">
+  <rect width="60" height="40" fill="#009739"/>
+  <polygon points="30,8 54,20 30,32 6,20" fill="#FFCC29"/>
+  <circle cx="30" cy="20" r="8" fill="#3E4095"/>
+  <path d="M22,20a8,8 0 0,1 16,0" fill="none" stroke="#fff" stroke-width="1.2"/>
+</svg>

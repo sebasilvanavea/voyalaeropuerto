@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>VoyalAeropuerto - Traslados al Aeropuerto</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Servicio confiable y puntual de traslados desde y hacia el aeropuerto. Reserva tu traslado con VoyalAeropuerto.com y viaja con tranquilidad y comodidad." />
+    <meta property="og:title" content="VoyalAeropuerto - Traslados al Aeropuerto" />
+    <meta property="og:description" content="Servicio confiable y puntual de traslados desde y hacia el aeropuerto. Reserva tu traslado con VoyalAeropuerto.com y viaja con tranquilidad y comodidad." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:url" content="https://voyalaeropuerto.com" />
+    <meta property="og:site_name" content="VoyalAeropuerto.com" />
+    
+    <!-- Precargas y preconexiones -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="/assets/fondo.jpg" as="image">
+    <link rel="preload" href="/assets/logo1.png" as="image">
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <!-- Estilo inicial para el loader -->
+    <style>
+      .app-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #f1f5f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.3s ease-out;
+      }
+      .app-loading.fade-out {
+        opacity: 0;
+      }
+      .initial-loader {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(37, 99, 235, 0.1);
+        border-radius: 50%;
+        border-top-color: #2563eb;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f1f5f9;
+      }
+    </style>
+  </head>
+  <body>
+    <app-root>
+      <div class="app-loading" id="app-loading">
+        <div class="initial-loader"></div>
+      </div>
+    </app-root>
+    <script>
+      // Remover el loader cuando la app esté lista
+      window.addEventListener('load', () => {
+        const loader = document.getElementById('app-loading');
+        if (loader) {
+          loader.classList.add('fade-out');
+          setTimeout(() => {
+            loader.remove();
+          }, 300);
+        }
+      });
+
+      // Optimizar navegación suave
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function (e) {
+            const targetId = this.getAttribute('href').substring(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+              e.preventDefault();
+              target.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
