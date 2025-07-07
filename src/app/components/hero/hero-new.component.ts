@@ -41,26 +41,26 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
             <!-- Main Title inspired by apiux.io -->
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight hero-title">
               <span class="text-white">
-                {{ 'HERO.TITLE_PART_1' | translate }}
+                Transporte
               </span>
               <br>
               <span class="bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">
-                {{ 'HERO.TITLE_PART_2' | translate }}
+                Confiable
               </span>
               <br>
               <span class="text-white">
-                {{ 'HERO.TITLE_PART_3' | translate }}
+                al Aeropuerto
               </span>
               <br>
               <span class="bg-gradient-to-r from-amber-500 to-yellow-600 bg-clip-text text-transparent">
-                {{ 'HERO.TITLE_PART_4' | translate }}
+                24/7
               </span>
             </h1>
             
             <!-- Subtitle -->
             <p class="text-xl md:text-2xl text-white leading-relaxed font-medium hero-subtitle max-w-2xl">
-              {{ 'HERO.SUBTITLE_PART_1' | translate }}
-              <span class="text-yellow-600 font-semibold">{{ 'HERO.SUBTITLE_PART_2' | translate }}</span> {{ 'HERO.SUBTITLE_PART_3' | translate }}
+              Viaja con tranquilidad desde y hacia el aeropuerto con
+              <span class="text-yellow-600 font-semibold"> conductores profesionales</span> y vehículos de primera calidad.
             </p>
             
             <!-- Key Features -->
@@ -72,8 +72,8 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                   </svg>
                 </div>
                 <div>
-                  <p class="text-white font-semibold">{{ 'HERO.FEATURE_1_TITLE' | translate }}</p>
-                  <p class="text-white text-sm">{{ 'HERO.FEATURE_1_DESC' | translate }}</p>
+                  <p class="text-white font-semibold">Puntualidad garantizada</p>
+                  <p class="text-white text-sm">Llegamos 15 min antes</p>
                 </div>
               </div>
               
@@ -84,8 +84,8 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                   </svg>
                 </div>
                 <div>
-                  <p class="text-white font-semibold">{{ 'HERO.FEATURE_2_TITLE' | translate }}</p>
-                  <p class="text-white text-sm">{{ 'HERO.FEATURE_2_DESC' | translate }}</p>
+                  <p class="text-white font-semibold">Viajes seguros</p>
+                  <p class="text-white text-sm">Conductores verificados</p>
                 </div>
               </div>
               
@@ -96,40 +96,40 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
                   </svg>
                 </div>
                 <div>
-                  <p class="text-white font-semibold">{{ 'HERO.FEATURE_3_TITLE' | translate }}</p>
-                  <p class="text-white text-sm">{{ 'HERO.FEATURE_3_DESC' | translate }}</p>
+                  <p class="text-white font-semibold">Precios transparentes</p>
+                  <p class="text-white text-sm">Sin costos ocultos</p>
                 </div>
               </div>
               
               <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
                   <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                   </svg>
                 </div>
                 <div>
-                  <p class="text-white font-semibold">{{ 'HERO.FEATURE_4_TITLE' | translate }}</p>
-                  <p class="text-white text-sm">{{ 'HERO.FEATURE_4_DESC' | translate }}</p>
+                  <p class="text-white font-semibold">Soporte 24/7</p>
+                  <p class="text-white text-sm">Asistencia constante</p>
                 </div>
               </div>
             </div>
             
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 pt-4">
-              <button (click)="scrollToSection('reserva')" 
+              <button (click)="scrollToSection('reservar')" 
                       class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl transition-all duration-300 shadow-xl hover:shadow-yellow-500/25 transform hover:scale-105 hero-button-primary">
                 <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
-                <span>{{ 'HERO.BOOK_NOW' | translate }}</span>
+                <span>Reservar Ahora</span>
               </button>
               
-              <button (click)="scrollToSection('contacto')" 
-                      class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-700 border-2 border-gray-300 rounded-xl hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 hero-button-secondary">
+              <button (click)="scrollToSection('tarifas')" 
+                      class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white border-2 border-white/30 rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-300 hero-button-secondary">
                 <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                 </svg>
-                {{ 'HERO.CONTACT_US' | translate }}
+                Ver Tarifas
               </button>
             </div>
 

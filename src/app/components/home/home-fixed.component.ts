@@ -8,7 +8,8 @@ import { takeUntil } from 'rxjs/operators';
 import { HeroNewComponent } from '../hero/hero-new.component';
 import { TrustedSectionComponent } from '../trusted-section/trusted-section.component';
 import { ServicesComponent } from '../services/services.component';
-import { HowItWorksComponent } from '../how-it-works/how-it-works.component';
+import { WhyChooseUsComponent } from '../how-it-works/how-it-works.component';
+import { TarifasComponent } from '../tarifas/tarifas.component';
 import { BookingSectionComponent } from '../booking-section/booking-section.component';
 import { QuoteSectionComponent } from '../quote-section/quote-section.component';
 import { ContactSectionComponent } from '../contact-section/contact-section.component';
@@ -22,7 +23,8 @@ import { ContactSectionComponent } from '../contact-section/contact-section.comp
     HeroNewComponent,
     TrustedSectionComponent,
     ServicesComponent,
-    HowItWorksComponent,
+    WhyChooseUsComponent,
+    TarifasComponent,
     BookingSectionComponent,
     QuoteSectionComponent,
     ContactSectionComponent
