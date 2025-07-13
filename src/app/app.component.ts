@@ -1,16 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header-new.component';
 import { FooterComponent } from './components/footer.component';
 import { NotificationContainerComponent } from './components/notification-container/notification-container.component';
+import { PerformanceIndicatorComponent } from './components/performance-indicator/performance-indicator.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { PerformanceOptimizationService } from './services/performance-optimization.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, NotificationContainerComponent, RouterOutlet, TranslateModule],
+  imports: [CommonModule, HeaderComponent, FooterComponent, NotificationContainerComponent, PerformanceIndicatorComponent, RouterOutlet, TranslateModule],
   template: `
     <div class="app-container" [class.loading]="loading">
       <app-header *ngIf="!isAdminRoute()"></app-header>
@@ -21,6 +23,9 @@ import { Router } from '@angular/router';
 
       <!-- Global notification container -->
       <app-notification-container></app-notification-container>
+      
+      <!-- Performance indicator -->
+      <app-performance-indicator></app-performance-indicator>
 
       <div *ngIf="loading" class="loading-overlay">
         <div class="loading-spinner"></div>
@@ -66,10 +71,14 @@ import { Router } from '@angular/router';
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   loading = true;
 
-  constructor(private translate: TranslateService, private router: Router) {
+  constructor(
+    private translate: TranslateService, 
+    private router: Router,
+    private performanceService: PerformanceOptimizationService
+  ) {
     translate.addLangs(['es', 'pt']);
     translate.setDefaultLang('es');
     const browserLang = translate.getBrowserLang() || 'es';
@@ -77,6 +86,22 @@ export class AppComponent {
     translate.use(lang).subscribe(() => {
       this.loading = false;
     });
+  }
+
+  ngOnInit(): void {
+    // Initialize performance optimizations
+    this.performanceService.enableProgressiveEnhancement();
+    
+    // Register service worker
+    this.registerServiceWorker();
+  }
+
+  private registerServiceWorker(): void {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('✅ Service Worker registered'))
+        .catch(err => console.warn('❌ Service Worker registration failed:', err));
+    }
   }
 
   isAdminRoute(): boolean {

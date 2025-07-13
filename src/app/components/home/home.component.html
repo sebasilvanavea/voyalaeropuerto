@@ -1,25 +1,50 @@
 <div class="min-h-screen bg-white">
-  <!-- Hero Section -->
-  <app-hero-new></app-hero-new>
+  <!-- Hero Section - Carga inmediata -->
+  <app-hero-new *ngIf="sectionsLoaded.hero"></app-hero-new>
 
-  <!-- Trusted Section -->
-  <app-trusted-section></app-trusted-section>
+  <!-- Trusted Section - Carga progresiva -->
+  <app-trusted-section *ngIf="sectionsLoaded.trusted"></app-trusted-section>
+  <div *ngIf="!sectionsLoaded.trusted" class="section-placeholder trusted-placeholder max-w-6xl mx-auto py-8">
+    <app-skeleton type="text" containerClass="px-4"></app-skeleton>
+  </div>
 
-  <!-- Services Section -->
-  <app-services></app-services>
+  <!-- Services Section - Carga progresiva -->
+  <app-services *ngIf="sectionsLoaded.services"></app-services>
+  <div *ngIf="!sectionsLoaded.services" class="section-placeholder services-placeholder max-w-6xl mx-auto py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+      <app-skeleton type="services" *ngFor="let item of [1,2,3]"></app-skeleton>
+    </div>
+  </div>
 
-  <!-- Tarifas Section -->
-  <app-tarifas></app-tarifas>
+  <!-- Tarifas Section - Lazy load -->
+  <app-tarifas *ngIf="sectionsLoaded.tarifas"></app-tarifas>
+  <div *ngIf="!sectionsLoaded.tarifas" id="tarifas-placeholder" class="section-placeholder tarifas-placeholder max-w-6xl mx-auto py-12">
+    <app-skeleton type="card" containerClass="px-4"></app-skeleton>
+  </div>
 
-  <!-- Why Choose Us Section -->
-  <app-why-choose-us></app-why-choose-us>
+  <!-- Why Choose Us Section - Lazy load -->
+  <app-why-choose-us *ngIf="sectionsLoaded.howItWorks"></app-why-choose-us>
+  <div *ngIf="!sectionsLoaded.howItWorks" id="how-it-works-placeholder" class="section-placeholder how-it-works-placeholder max-w-6xl mx-auto py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+      <app-skeleton type="card" *ngFor="let item of [1,2,3,4]"></app-skeleton>
+    </div>
+  </div>
 
-  <!-- Booking Section -->
-  <app-booking-section></app-booking-section>
+  <!-- Booking Section - Lazy load -->
+  <app-booking-section *ngIf="sectionsLoaded.booking"></app-booking-section>
+  <div *ngIf="!sectionsLoaded.booking" id="booking-placeholder" class="section-placeholder booking-placeholder max-w-6xl mx-auto py-12">
+    <app-skeleton type="hero" containerClass="px-4"></app-skeleton>
+  </div>
 
-  <!-- Quote Section -->
-  <app-quote-section></app-quote-section>
+  <!-- Quote Section - Lazy load -->
+  <app-quote-section *ngIf="sectionsLoaded.quote"></app-quote-section>
+  <div *ngIf="!sectionsLoaded.quote" id="quote-placeholder" class="section-placeholder quote-placeholder max-w-6xl mx-auto py-12">
+    <app-skeleton type="card" containerClass="px-4"></app-skeleton>
+  </div>
 
-  <!-- Contact Section -->
-  <app-contact-section></app-contact-section>
+  <!-- Contact Section - Lazy load -->
+  <app-contact-section *ngIf="sectionsLoaded.contact"></app-contact-section>
+  <div *ngIf="!sectionsLoaded.contact" id="contact-placeholder" class="section-placeholder contact-placeholder max-w-6xl mx-auto py-12">
+    <app-skeleton type="services" containerClass="px-4"></app-skeleton>
+  </div>
 </div>

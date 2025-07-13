@@ -1,16 +1,18 @@
 import { Routes } from '@angular/router';
-import { PreloadAllModules } from '@angular/router';
+import { SmartPreloadingStrategy } from './services/smart-preloading.strategy';
 
 export const routes: Routes = [
   { 
     path: '', 
     loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent),
-    title: 'VoyalAeropuerto - Traslados al Aeropuerto'
+    title: 'VoyalAeropuerto - Traslados al Aeropuerto',
+    data: { preload: true, critical: true }
   },
   { 
     path: 'precios', 
     loadComponent: () => import('./components/pricing-table/pricing-page.component').then(m => m.PricingPageComponent),
-    title: 'Tarifas y Precios - VoyalAeropuerto'
+    title: 'Tarifas y Precios - VoyalAeropuerto',
+    data: { preload: true, delay: 3000 }
   },
   // Rutas comentadas para mantener todo en una sola página con scroll
   // { 
@@ -26,17 +28,20 @@ export const routes: Routes = [
   { 
     path: 'booking-steps', 
     loadComponent: () => import('./components/booking/booking-steps.component').then(m => m.BookingStepsComponent),
-    title: 'Proceso de Reserva - VoyalAeropuerto'
+    title: 'Proceso de Reserva - VoyalAeropuerto',
+    data: { preload: true, critical: true }
   },
   { 
     path: 'booking-success', 
     loadComponent: () => import('./components/booking/booking-success.component').then(m => m.BookingSuccessComponent),
-    title: 'Reserva Confirmada - VoyalAeropuerto'
+    title: 'Reserva Confirmada - VoyalAeropuerto',
+    data: { preload: true, critical: true }
   },
   {
     path: 'tracking/:id',
     loadComponent: () => import('./components/tracking/trip-tracking.component').then(m => m.TripTrackingComponent),
-    title: 'Seguimiento de Viaje - VoyalAeropuerto'
+    title: 'Seguimiento de Viaje - VoyalAeropuerto',
+    data: { preload: false }
   },
   {
     path: 'admin',
@@ -93,7 +98,7 @@ export const routes: Routes = [
 ];
 
 export const routingConfig = {
-  preloadingStrategy: PreloadAllModules,
+  preloadingStrategy: SmartPreloadingStrategy,
   scrollPositionRestoration: 'enabled',
   paramsInheritanceStrategy: 'always',
   anchorScrolling: 'enabled'

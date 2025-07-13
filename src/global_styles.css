@@ -479,6 +479,183 @@ nav a.relative.group span {
   pointer-events: auto;
 }
 
+/* ========================================
+   OPTIMIZACIONES DE RENDIMIENTO
+======================================== */
+
+/* Lazy Loading Placeholders */
+.section-placeholder {
+  padding: 2rem 1rem;
+  margin: 1rem 0;
+}
+
+.section-placeholder > div {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Optimizaciones para conexiones lentas */
+.slow-connection img {
+  filter: blur(0.5px);
+  transition: filter 0.3s ease;
+}
+
+.slow-connection img.loaded {
+  filter: none;
+}
+
+.slow-connection .hero-background {
+  background-image: none !important;
+  background-color: #f3f4f6;
+}
+
+/* Reducir animaciones en conexiones lentas */
+.reduce-animations * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Critical Above-the-Fold Optimizations */
+.hero-section {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+/* Lazy images */
+.critical-image {
+  /* loading y fetchpriority se manejan en HTML */
+}
+
+.lazy-image {
+  transition: opacity 0.3s ease;
+}
+
+.lazy-image.loading {
+  opacity: 0.5;
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+}
+
+/* Optimización de fuentes - se debe aplicar en @font-face */
+/* @font-display: swap; - Esto va en las declaraciones de fuentes */
+
+/* Contenido critical path */
+.above-fold {
+  contain: layout style;
+  content-visibility: auto;
+}
+
+.below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 400px;
+}
+
+/* Optimización de scroll */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  will-change: scroll-position;
+}
+
+/* Performance optimized animations */
+.optimized-animation {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Resource hints */
+.preload-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* Critical CSS Loading States */
+.app-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.app-loading.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Performance monitoring */
+.performance-overlay {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  z-index: 10000;
+  display: none;
+}
+
+.performance-overlay.show {
+  display: block;
+}
+
+/* Progressive Enhancement */
+@supports (content-visibility: auto) {
+  .progressive-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 300px;
+  }
+}
+
+/* Network Quality Adaptations */
+@media (prefers-reduced-data: reduce) {
+  .hero-background,
+  .decorative-image {
+    display: none;
+  }
+  
+  .video-element {
+    display: none;
+  }
+  
+  .animation {
+    animation: none !important;
+  }
+}
+
+/* Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .parallax {
+    transform: none !important;
+  }
+}
+
 /* ======= MEDIA QUERIES BIEN DEFINIDAS ======= */
 
 /* Móvil pequeño (hasta 480px) */
@@ -833,4 +1010,275 @@ nav a.relative.group span {
 .mobile-menu-button svg {
   width: clamp(1.25rem, 4vw, 1.5rem);
   height: clamp(1.25rem, 4vw, 1.5rem);
+}
+
+/* ========================================
+   OPTIMIZACIONES DE PERFORMANCE Y UX MEJORADAS
+   ======================================== */
+
+/* Loading States y Animaciones Avanzadas */
+.loading {
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Progressive Enhancement - Dispositivos de gama baja */
+.low-end-device * {
+  animation-duration: 0.1s !important;
+  transition-duration: 0.1s !important;
+}
+
+.low-end-device .skeleton-shimmer {
+  animation: none;
+  background: #f0f0f0;
+}
+
+.reduce-effects * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* Conexiones lentas */
+.slow-connection img {
+  filter: blur(1px);
+  transition: filter 0.3s ease;
+}
+
+.slow-connection img.loaded {
+  filter: none;
+}
+
+/* Soporte WebP */
+.webp-support .fallback-image {
+  display: none;
+}
+
+/* Lazy Loading Estados */
+.lazy-image {
+  background: #f3f4f6;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lazy-image.loaded {
+  background: none;
+}
+
+.lazy-image.error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.lazy-image.error::after {
+  content: "⚠️ Error al cargar imagen";
+  font-size: 14px;
+}
+
+/* Progressive image loading */
+.progressive-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.progressive-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.5) 50%, transparent 70%);
+  animation: progressive-scan 2s infinite;
+  z-index: 1;
+}
+
+.progressive-image.loaded::before {
+  display: none;
+}
+
+@keyframes progressive-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Fade transitions para secciones */
+.section-fade-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.section-fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* Enhanced loading states */
+.component-loading {
+  position: relative;
+}
+
+.component-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Performance indicators */
+.performance-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.performance-indicator.show {
+  opacity: 1;
+}
+
+/* Focus management para accesibilidad */
+.focus-trap {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Optimizaciones para dispositivos específicos */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch devices */
+  .hover\\:scale-105:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .skeleton-item {
+    background: #000 !important;
+    border: 2px solid #fff;
+  }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      #374151 25%,
+      #4b5563 50%,
+      #374151 75%
+    );
+  }
+  
+  .lazy-image {
+    background: #374151;
+  }
+  
+  .lazy-image.error {
+    background: #7f1d1d;
+    color: #fca5a5;
+  }
+}
+
+/* Reduced motion support mejorado */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .skeleton-shimmer {
+    animation: none;
+    background: #f0f0f0;
+  }
+  
+  .progressive-image::before {
+    display: none;
+  }
+}
+
+/* Utilities para development y debug */
+.debug-performance * {
+  outline: 1px solid rgba(255,0,0,0.3) !important;
+}
+
+.debug-loading {
+  background: repeating-linear-gradient(
+    45deg,
+    #fff,
+    #fff 10px,
+    #f0f0f0 10px,
+    #f0f0f0 20px
+  ) !important;
+}
+
+/* Intersection observer fallback */
+.no-intersection-observer .lazy-content {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Critical resource optimization */
+.critical-resource {
+  font-display: swap;
+}
+
+/* Will-change optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+/* Remove will-change after animation */
+.animation-complete {
+  will-change: auto;
 }
