@@ -3,7 +3,6 @@ import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header-new.component';
 import { FooterComponent } from './components/footer.component';
 import { NotificationContainerComponent } from './components/notification-container/notification-container.component';
-import { PerformanceIndicatorComponent } from './components/performance-indicator/performance-indicator.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -12,7 +11,7 @@ import { PerformanceOptimizationService } from './services/performance-optimizat
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, NotificationContainerComponent, PerformanceIndicatorComponent, RouterOutlet, TranslateModule],
+  imports: [CommonModule, HeaderComponent, FooterComponent, NotificationContainerComponent, RouterOutlet, TranslateModule],
   template: `
     <div class="app-container" [class.loading]="loading">
       <app-header *ngIf="!isAdminRoute()"></app-header>
@@ -23,9 +22,6 @@ import { PerformanceOptimizationService } from './services/performance-optimizat
 
       <!-- Global notification container -->
       <app-notification-container></app-notification-container>
-      
-      <!-- Performance indicator -->
-      <app-performance-indicator></app-performance-indicator>
 
       <div *ngIf="loading" class="loading-overlay">
         <div class="loading-spinner"></div>

@@ -113,7 +113,7 @@ export class PerformanceIndicatorComponent implements OnInit, OnDestroy {
   private lastTime = performance.now();
 
   constructor() {
-    this.isDevelopment = !environment.production;
+    this.isDevelopment = false; // Simplificado para evitar errores
     this.detectConnectionSpeed();
     this.updateMemoryUsage();
     
@@ -203,12 +203,3 @@ export class PerformanceIndicatorComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-
-// Environment interface para el ejemplo
-interface Environment {
-  production: boolean;
-}
-
-const environment: Environment = {
-  production: false // This should come from actual environment
-};

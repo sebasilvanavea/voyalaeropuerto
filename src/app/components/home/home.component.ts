@@ -4,7 +4,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PerformanceOptimizationService } from '../../services/performance-optimization.service';
-import { SkeletonComponent } from '../skeleton/skeleton.component';
 
 // Import individual section components
 import { HeroNewComponent } from '../hero/hero-new.component';
@@ -22,7 +21,6 @@ import { ContactSectionComponent } from '../contact-section/contact-section.comp
   imports: [
     CommonModule,
     TranslateModule,
-    SkeletonComponent,
     HeroNewComponent,
     TrustedSectionComponent,
     ServicesComponent,
