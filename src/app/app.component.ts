@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header-new.component';
 import { FooterComponent } from './components/footer.component';
+import { NotificationContainerComponent } from './components/notification-container/notification-container.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -9,7 +10,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, FooterComponent, RouterOutlet, TranslateModule],
+  imports: [CommonModule, HeaderComponent, FooterComponent, NotificationContainerComponent, RouterOutlet, TranslateModule],
   template: `
     <div class="app-container" [class.loading]="loading">
       <app-header *ngIf="!isAdminRoute()"></app-header>
@@ -17,6 +18,9 @@ import { Router } from '@angular/router';
         <router-outlet (activate)="onActivate()" (deactivate)="onDeactivate()"></router-outlet>
       </main>
       <app-footer *ngIf="!isAdminRoute()"></app-footer>
+
+      <!-- Global notification container -->
+      <app-notification-container></app-notification-container>
 
       <div *ngIf="loading" class="loading-overlay">
         <div class="loading-spinner"></div>
