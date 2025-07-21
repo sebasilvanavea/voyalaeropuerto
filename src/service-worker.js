@@ -6,8 +6,8 @@ const RUNTIME_CACHE = 'voya-runtime-v1';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
-  '/assets/logo1.png',
-  '/assets/fondo.jpg'
+  '/assets/logo1.png'
+  // '/assets/fondo.jpg' // Comentado hasta que se agregue el archivo
 ];
 
 // Estrategias de cache

@@ -93,10 +93,13 @@ export class AppComponent implements OnInit {
   }
 
   private registerServiceWorker(): void {
-    if ('serviceWorker' in navigator) {
+    // Solo registrar service worker en producción
+    if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
       navigator.serviceWorker.register('/service-worker.js')
         .then(() => console.log('✅ Service Worker registered'))
         .catch(err => console.warn('❌ Service Worker registration failed:', err));
+    } else {
+      console.log('🔧 Service Worker deshabilitado en desarrollo');
     }
   }
 

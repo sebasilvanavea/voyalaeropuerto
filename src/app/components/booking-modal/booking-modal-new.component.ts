@@ -476,7 +476,16 @@ export class BookingModalComponent implements OnInit, OnDestroy {
   }
 
   private loadDestinations() {
-    this.destinations = this.pricingService.getDestinations();
+    this.pricingService.getDestinations()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (destinations) => {
+          this.destinations = destinations;
+        },
+        error: (error) => {
+          console.error('Error loading destinations:', error);
+        }
+      });
   }
 
   private setupFormSubscriptions() {
@@ -631,7 +640,7 @@ export class BookingModalComponent implements OnInit, OnDestroy {
   }
 
   // Booking Methods
-  async confirmBooking() {
+  confirmBooking() {
     if (!this.isCurrentStepValid()) {
       this.showNotification('Por favor complete todos los campos requeridos', 'error');
       return;
@@ -639,27 +648,32 @@ export class BookingModalComponent implements OnInit, OnDestroy {
 
     this.isProcessing = true;
 
-    try {
-      // Simulate booking creation for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      this.showNotification('¡Reserva confirmada exitosamente!', 'success');
-      this.bookingCompleted.emit({
-        id: 'temp-' + Date.now(),
-        route: this.routeForm.value,
-        vehicle: this.vehicleForm.value,
-        details: this.detailsForm.value,
-        totalPrice: this.totalPrice
+    const bookingData = {
+      route: this.routeForm.value,
+      vehicle: this.vehicleForm.value,
+      details: this.detailsForm.value,
+      totalPrice: this.totalPrice,
+      timestamp: new Date().toISOString()
+    };
+
+    this.bookingService.createBooking(bookingData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.showNotification('¡Reserva confirmada exitosamente!', 'success');
+          this.bookingCompleted.emit(response);
+          this.clearDraftData();
+          this.closeModal();
+          this.resetForms();
+        },
+        error: (error) => {
+          console.error('Error creating booking:', error);
+          this.showNotification('Error al confirmar la reserva. Intente nuevamente.', 'error');
+        },
+        complete: () => {
+          this.isProcessing = false;
+        }
       });
-      this.clearDraftData();
-      this.closeModal();
-      this.resetForms();
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      this.showNotification('Error al confirmar la reserva. Intente nuevamente.', 'error');
-    } finally {
-      this.isProcessing = false;
-    }
   }
 
   private resetForms() {

@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage, MessagePayload } from 'firebase/messaging';
 import { environment } from '../../environments/environment';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { inject } from '@angular/core';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 export interface PushNotificationData {
   title: string;
@@ -30,10 +29,14 @@ export interface NotificationAction {
 })
 export class NotificationService {
   private messaging: any;
-  private supabase = inject(SupabaseClient);
+  private supabase: SupabaseClient;
   private isSupported = false;
 
   constructor() {
+    this.supabase = createClient(
+      environment.supabaseUrl,
+      environment.supabaseKey
+    );
     this.initializeFirebase();
   }
 

@@ -12,7 +12,8 @@ import { takeUntil } from 'rxjs/operators';
   imports: [CommonModule, RouterModule, BookingComponent, TranslateModule],
   template: `
     <section class="relative flex items-center justify-center w-full overflow-hidden min-h-[450px] max-h-[900px] md:min-h-[600px] md:max-h-[1000px]" style="height:100vh;">
-      <img src="/assets/fondo.jpg" alt="Fondo aeropuerto" class="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-60" />
+      <!-- Fondo con gradiente en lugar de imagen hasta que se agregue fondo.jpg -->
+      <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 z-0 opacity-60"></div>
       <div class="absolute inset-0 bg-gradient-to-b from-blue-900/30 to-blue-700/80 z-10"></div>
       <div class="container mx-auto flex flex-col md:flex-row items-center justify-center gap-12 relative z-20 min-h-[450px] max-h-[900px] md:min-h-[600px] md:max-h-[1000px]">
         <div class="w-full md:w-1/2 text-center md:text-left flex flex-col justify-center">

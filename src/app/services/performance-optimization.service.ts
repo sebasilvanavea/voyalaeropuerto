@@ -52,7 +52,7 @@ export class PerformanceOptimizationService {
   private preloadCriticalResources(): void {
     const criticalImages = [
       '/assets/logo1.png',
-      '/assets/fondo.jpg'
+      // '/assets/fondo.jpg' // Comentado hasta que se agregue el archivo
     ];
 
     const criticalFonts = [
@@ -233,11 +233,13 @@ export class PerformanceOptimizationService {
   }
 
   private enablePWAFeatures(): void {
-    // Registrar service worker si está disponible
-    if ('serviceWorker' in navigator) {
+    // Registrar service worker solo en producción
+    if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
       navigator.serviceWorker.register('/firebase-messaging-sw.js')
         .then(() => console.log('✅ Service Worker registrado'))
         .catch(err => console.warn('❌ Error registrando Service Worker:', err));
+    } else {
+      console.log('🔧 Service Worker deshabilitado en desarrollo');
     }
   }
 
