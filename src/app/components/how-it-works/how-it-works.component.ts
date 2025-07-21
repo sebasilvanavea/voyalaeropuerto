@@ -8,7 +8,7 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [CommonModule, TranslateModule],
   template: `
     <!-- Why Choose Us Section -->
-    <section id="ventajas" class="py-20 bg-white scroll-mt-20">
+    <section id="sobre-nosotros" class="py-20 bg-white scroll-mt-20">
       <div class="max-w-7xl mx-auto px-6 lg:px-8">
         <div class="text-center mb-16">
           <span class="inline-block px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold mb-4">

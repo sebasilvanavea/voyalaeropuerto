@@ -36,18 +36,6 @@ import { ContactSectionComponent } from '../contact-section/contact-section.comp
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private performanceService = inject(PerformanceOptimizationService);
-  
-  // Control de carga progresiva
-  sectionsLoaded = {
-    hero: true,        // Carga inmediata
-    trusted: false,    // Carga después del hero
-    services: false,   // Carga después del scroll
-    howItWorks: false, // Lazy load
-    tarifas: false,    // Lazy load
-    booking: false,    // Lazy load
-    quote: false,      // Lazy load
-    contact: false     // Lazy load
-  };
 
   constructor(private translate: TranslateService, private cd: ChangeDetectorRef) {
     this.translate.onLangChange
@@ -67,9 +55,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // Optimizar para conexiones lentas
     this.performanceService.optimizeForSlowConnection();
-    
-    // Cargar secciones progresivamente
-    this.loadSectionsProgressively();
   }
 
   ngAfterViewInit(): void {
@@ -78,77 +63,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.performanceService.analyzePerformance();
       this.performanceService.hideLoading();
     }, 100);
-
-    // Configurar intersection observer para lazy loading
-    this.setupLazyLoading();
-  }
-
-  private loadSectionsProgressively(): void {
-    // Cargar trusted section después de un pequeño delay
-    setTimeout(() => {
-      this.sectionsLoaded.trusted = true;
-      this.cd.detectChanges();
-    }, 500);
-
-    // Cargar services section después de más tiempo
-    setTimeout(() => {
-      this.sectionsLoaded.services = true;
-      this.cd.detectChanges();
-    }, 1000);
-  }
-
-  private setupLazyLoading(): void {
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              const sectionId = entry.target.id;
-              this.loadSection(sectionId);
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        {
-          rootMargin: '100px' // Cargar 100px antes de que sea visible
-        }
-      );
-
-      // Observar elementos placeholder
-      const placeholders = document.querySelectorAll('.section-placeholder');
-      placeholders.forEach(placeholder => observer.observe(placeholder));
-    } else {
-      // Fallback para navegadores sin IntersectionObserver
-      setTimeout(() => this.loadAllSections(), 2000);
-    }
-  }
-
-  private loadSection(sectionId: string): void {
-    switch (sectionId) {
-      case 'how-it-works-placeholder':
-        this.sectionsLoaded.howItWorks = true;
-        break;
-      case 'tarifas-placeholder':
-        this.sectionsLoaded.tarifas = true;
-        break;
-      case 'booking-placeholder':
-        this.sectionsLoaded.booking = true;
-        break;
-      case 'quote-placeholder':
-        this.sectionsLoaded.quote = true;
-        break;
-      case 'contact-placeholder':
-        this.sectionsLoaded.contact = true;
-        break;
-    }
-    this.cd.detectChanges();
-  }
-
-  private loadAllSections(): void {
-    Object.keys(this.sectionsLoaded).forEach(key => {
-      this.sectionsLoaded[key as keyof typeof this.sectionsLoaded] = true;
-    });
-    this.cd.detectChanges();
   }
 
   scrollToSection(sectionId: string): void {

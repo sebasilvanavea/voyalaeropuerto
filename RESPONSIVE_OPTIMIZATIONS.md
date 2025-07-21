@@ -32,7 +32,9 @@
 - **Video background**: Optimizado con fallback gradient
 - **Botones touch-friendly**: Mínimo 44px de altura
 
-#### Header (`header-new.component.ts`)
+### Componentes Principales Mejorados
+
+#### Header (`header.component.ts`)
 - **Logo adaptativo**: Texto truncado en móvil, completo en desktop
 - **Navigation colapsible**: Menú hamburguesa en móvil
 - **Sticky behavior**: Background blur dinámico al scroll

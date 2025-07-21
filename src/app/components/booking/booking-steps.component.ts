@@ -52,7 +52,7 @@ interface BookingData {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 pt-20">
+    <section id="booking-steps" class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 pt-20 scroll-mt-20">
 
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Steps Progress -->
@@ -651,7 +651,7 @@ interface BookingData {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   `,
   styles: [`
     .floating-elements {

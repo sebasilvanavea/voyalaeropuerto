@@ -462,16 +462,6 @@ const EMAIL_TEMPLATES = {
     <head>
       <meta charset="utf-8">
       <title>Viaje Completado - VoyAlAeropuerto</title>
-      <style>
-        body { font-family: system-ui, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
-        .header { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); color: white; padding: 2rem; text-align: center; border-radius: 12px 12px 0 0; }
-        .content { background: white; padding: 2rem; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .summary { background: #f0fdf4; border: 2px solid #10b981; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
-        .rating-section { background: #fef3c7; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; text-align: center; }
-        .stars { font-size: 2em; margin: 1rem 0; }
-        .star { color: #d1d5db; cursor: pointer; transition: color 0.2s; }
-        .star.active { color: #fbbf24; }
-      </style>
     </head>
     <body>
       <div class="header">

@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
+import { BookingModalComponent } from '../booking-modal/booking-modal.component';
 
 @Component({
   selector: 'app-hero-new',
   standalone: true,
-  imports: [CommonModule, TranslateModule, HeroBookingCardComponent],
+  imports: [CommonModule, TranslateModule, HeroBookingCardComponent, BookingModalComponent],
   template: `
     <!-- Hero Section - Inicio -->
     <section id="inicio" class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-50">
@@ -116,12 +117,12 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
             
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 pt-4">
-              <button (click)="scrollToSection('reservar')" 
+              <button (click)="openBookingModal()" 
                       class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl transition-all duration-300 shadow-xl hover:shadow-yellow-500/25 transform hover:scale-105 hero-button-primary">
                 <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
-                <span>Reservar Ahora</span>
+                <span>Reserva Rápida</span>
               </button>
               
               <button (click)="scrollToSection('tarifas')" 
@@ -139,7 +140,7 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
 
           <!-- Right Side - Booking Card -->
           <div class="flex justify-center lg:justify-end">
-            <app-hero-booking-card></app-hero-booking-card>
+            <app-hero-booking-card (openBookingModal)="openBookingModal()"></app-hero-booking-card>
           </div>
 
         </div>
@@ -154,6 +155,13 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
         </div>
       </div>
     </section>
+
+    <!-- Booking Modal -->
+    <app-booking-modal 
+      [isOpen]="isBookingModalOpen"
+      (closeEvent)="closeBookingModal()"
+      (bookingCompleted)="onBookingCompleted($event)"
+    ></app-booking-modal>
   `,
   styles: [`
     /* Clean Text Shadows for light theme */
@@ -280,6 +288,8 @@ import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
 })
 export class HeroNewComponent {
   
+  isBookingModalOpen = false;
+
   scrollToSection(sectionId: string): void {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -292,5 +302,20 @@ export class HeroNewComponent {
         behavior: 'smooth'
       });
     }
+  }
+
+  openBookingModal(): void {
+    this.isBookingModalOpen = true;
+  }
+
+  closeBookingModal(): void {
+    this.isBookingModalOpen = false;
+  }
+
+  onBookingCompleted(bookingData: any): void {
+    console.log('Booking completed:', bookingData);
+    // Here you can handle the booking completion
+    // For example, show a success message, redirect, etc.
+    this.isBookingModalOpen = false;
   }
 }

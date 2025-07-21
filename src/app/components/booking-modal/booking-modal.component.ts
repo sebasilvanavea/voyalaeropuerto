@@ -1,1072 +1,822 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { trigger, state, style, transition, animate } from '@angular/animations';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
-interface BookingStep {
-  id: number;
+import { BookingService } from '../../services/booking.service';
+import { AuthService } from '../../services/auth.service';
+import { PricingService, PriceCalculation, Destination, VehicleType } from '../../services/pricing.service';
+
+interface Step {
+  number: number;
   title: string;
-  completed: boolean;
-  active: boolean;
+  isCompleted: boolean;
+  isActive: boolean;
+}
+
+interface BookingData {
+  // Step 1: Route
+  direction: 'to-airport' | 'from-airport';
+  origin: string;
+  destination: string;
+  departureDate: string;
+  departureTime: string;
+  returnDate?: string;
+  returnTime?: string;
+  isRoundTrip: boolean;
+
+  // Step 2: Vehicle
+  vehicleType: 'taxi' | 'suv';
+  passengers: number;
+  luggage: {
+    trunk: number;
+    cabin: number;
+    backpacks: number;
+  };
+
+  // Step 3: Details
+  passengerName: string;
+  passengerEmail: string;
+  passengerPhone: string;
+  specialRequests: string;
+  flightNumber?: string;
+
+  // Step 4: Payment (pricing)
+  priceCalculation?: PriceCalculation;
 }
 
 @Component({
   selector: 'app-booking-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
-  animations: [
-    trigger('modalSlide', [
-      state('hidden', style({
-        opacity: 0,
-        transform: 'translateY(100%)'
-      })),
-      state('visible', style({
-        opacity: 1,
-        transform: 'translateY(0)'
-      })),
-      transition('hidden => visible', [
-        animate('400ms cubic-bezier(0.25, 0.46, 0.45, 0.94)')
-      ]),
-      transition('visible => hidden', [
-        animate('300ms cubic-bezier(0.55, 0.055, 0.675, 0.19)')
-      ])
-    ]),
-    trigger('backdropFade', [
-      state('hidden', style({ opacity: 0 })),
-      state('visible', style({ opacity: 1 })),
-      transition('hidden => visible', animate('300ms ease-out')),
-      transition('visible => hidden', animate('200ms ease-in'))
-    ])
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="booking-modal-overlay" 
-         [@backdropFade]="isVisible ? 'visible' : 'hidden'"
-         *ngIf="isVisible || animating"
-         (click)="onBackdropClick()">
-      
-      <div class="booking-modal-content" 
-           [@modalSlide]="isVisible ? 'visible' : 'hidden'"
-           (click)="$event.stopPropagation()">
+    <!-- Modal Overlay -->
+    <div 
+      *ngIf="isOpen"
+      class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm"
+      (click)="closeModal($event)"
+    >
+      <!-- Modal Container -->
+      <div class="min-h-screen px-4 text-center">
+        <!-- Spacer for centering -->
+        <div class="inline-block h-screen align-middle" aria-hidden="true">&#8203;</div>
         
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <div class="header-content">
-            <div class="icon-container">
-              <svg class="airplane-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        <!-- Modal Content -->
+        <div 
+          class="inline-block w-full max-w-6xl p-6 my-8 text-left align-middle transition-all transform bg-white shadow-2xl rounded-2xl modal-content"
+          (click)="$event.stopPropagation()"
+        >
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
+            <div>
+              <h2 class="text-3xl font-bold text-gray-900">Reserva tu Viaje</h2>
+              <p class="text-gray-600 mt-1">Complete los siguientes pasos para confirmar su reserva</p>
+            </div>
+            <button 
+              (click)="closeModal()"
+              class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
-            </div>
-            <div class="header-text">
-              <h2>{{ 'BOOKING_MODAL.TITLE' | translate }}</h2>
-              <p>{{ 'BOOKING_MODAL.SUBTITLE' | translate }}</p>
-            </div>
-          </div>
-          
-          <button class="close-button" (click)="closeModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Progress Steps -->
-        <div class="progress-steps">
-          <div class="step" 
-               *ngFor="let step of steps; let i = index"
-               [class.completed]="step.completed"
-               [class.active]="step.active">
-            <div class="step-circle">
-              <svg *ngIf="step.completed" class="check-icon" viewBox="0 0 24 24">
-                <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" fill="none"/>
-              </svg>
-              <span *ngIf="!step.completed" class="step-number">{{ i + 1 }}</span>
-            </div>
-            <span class="step-title">{{ step.title | translate }}</span>
-          </div>
-        </div>
-
-        <!-- Step Content -->
-        <div class="step-content">
-          
-          <!-- Step 1: Route Selection -->
-          <div *ngIf="currentStep === 1" class="step-panel">
-            <h3>{{ 'BOOKING_MODAL.STEP_1.TITLE' | translate }}</h3>
-            
-            <div class="route-options">
-              <div class="route-option" 
-                   [class.selected]="bookingForm.get('direction')?.value === 'to-airport'"
-                   (click)="selectDirection('to-airport')">
-                <div class="option-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                  </svg>
-                </div>
-                <div class="option-content">
-                  <h4>{{ 'BOOKING_MODAL.TO_AIRPORT' | translate }}</h4>
-                  <p>{{ 'BOOKING_MODAL.TO_AIRPORT_DESC' | translate }}</p>
-                </div>
-              </div>
-
-              <div class="route-option" 
-                   [class.selected]="bookingForm.get('direction')?.value === 'from-airport'"
-                   (click)="selectDirection('from-airport')">
-                <div class="option-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                  </svg>
-                </div>
-                <div class="option-content">
-                  <h4>{{ 'BOOKING_MODAL.FROM_AIRPORT' | translate }}</h4>
-                  <p>{{ 'BOOKING_MODAL.FROM_AIRPORT_DESC' | translate }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="location-inputs" *ngIf="bookingForm.get('direction')?.value">
-              <div class="input-group">
-                <label>{{ getLocationLabel('origin') | translate }}</label>
-                <input type="text" 
-                       [placeholder]="getLocationPlaceholder('origin') | translate"
-                       formControlName="origin"
-                       class="location-input"
-                       [class.error]="getFieldError('origin')"
-                       (blur)="validateOriginLocation()">
-                <div class="error-message" *ngIf="getFieldError('origin')">
-                  {{ getFieldError('origin') }}
-                </div>
-              </div>
-              
-              <div class="input-group">
-                <label>{{ getLocationLabel('destination') | translate }}</label>
-                <input type="text" 
-                       [placeholder]="getLocationPlaceholder('destination') | translate"
-                       formControlName="destination"
-                       class="location-input"
-                       [class.error]="getFieldError('destination')"
-                       (blur)="validateDestinationLocation()">
-                <div class="error-message" *ngIf="getFieldError('destination')">
-                  {{ getFieldError('destination') }}
-                </div>
-              </div>
-            </div>
+            </button>
           </div>
 
-          <!-- Step 2: Vehicle Selection -->
-          <div *ngIf="currentStep === 2" class="step-panel">
-            <h3>{{ 'BOOKING_MODAL.STEP_2.TITLE' | translate }}</h3>
-            
-            <div class="vehicle-options">
-              <div class="vehicle-option" 
-                   *ngFor="let vehicle of vehicleTypes"
-                   [class.selected]="bookingForm.get('vehicleType')?.value === vehicle.id"
-                   (click)="selectVehicle(vehicle.id)">
-                <div class="vehicle-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path [attr.d]="vehicle.iconPath"/>
-                  </svg>
-                </div>
-                <div class="vehicle-info">
-                  <h4>{{ vehicle.name | translate }}</h4>
-                  <p>{{ vehicle.description | translate }}</p>
-                  <div class="vehicle-features">
-                    <span *ngFor="let feature of vehicle.features">
-                      {{ feature | translate }}
+          <!-- Steps Progress -->
+          <div class="mb-8">
+            <div class="flex items-center justify-center">
+              <div class="flex items-center space-x-4 md:space-x-8">
+                <div 
+                  *ngFor="let step of steps; let i = index"
+                  class="flex items-center"
+                >
+                  <!-- Step Circle -->
+                  <div class="flex flex-col items-center">
+                    <div 
+                      class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300"
+                      [class]="getStepClasses(step)"
+                    >
+                      <svg 
+                        *ngIf="step.isCompleted" 
+                        class="w-6 h-6 text-white" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      <span 
+                        *ngIf="!step.isCompleted"
+                        class="text-sm font-semibold"
+                        [class]="step.isActive ? 'text-white' : 'text-gray-500'"
+                      >
+                        {{ step.number }}
+                      </span>
+                    </div>
+                    <span 
+                      class="mt-2 text-xs md:text-sm font-medium text-center max-w-24"
+                      [class]="step.isActive ? 'text-yellow-600' : step.isCompleted ? 'text-green-600' : 'text-gray-500'"
+                    >
+                      {{ step.title }}
                     </span>
                   </div>
-                  <div class="vehicle-price">
-                    <span class="price">{{ vehicle.basePrice | currency:'USD':'symbol':'1.0-0' }}</span>
-                    <span class="price-note">{{ 'BOOKING_MODAL.BASE_PRICE' | translate }}</span>
+                  
+                  <!-- Connector Line -->
+                  <div 
+                    *ngIf="i < steps.length - 1"
+                    class="w-8 md:w-16 h-0.5 mx-2 md:mx-4 transition-all duration-300"
+                    [class]="steps[i + 1].isCompleted || steps[i + 1].isActive ? 'bg-yellow-500' : 'bg-gray-300'"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step Content Container -->
+          <div class="bg-white rounded-lg min-h-[400px]">
+
+            <!-- Step 1: Route Configuration -->
+            <div *ngIf="currentStep === 1" class="space-y-6">
+              <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Configuración de Ruta</h3>
+                <p class="text-gray-600">Seleccione el origen, destino y fechas de su viaje</p>
+              </div>
+
+              <form [formGroup]="routeForm" class="space-y-6">
+                <!-- Direction Selection -->
+                <div class="space-y-4">
+                  <label class="block text-sm font-semibold text-gray-700">Dirección del Viaje</label>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="relative cursor-pointer">
+                      <input
+                        type="radio"
+                        value="to-airport"
+                        formControlName="direction"
+                        class="sr-only"
+                      >
+                      <div class="p-4 border-2 rounded-lg transition-all duration-200 hover:border-yellow-300"
+                           [class]="routeForm.get('direction')?.value === 'to-airport' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white'">
+                        <div class="flex items-center space-x-3">
+                          <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                          </svg>
+                          <div>
+                            <h4 class="font-bold text-gray-900">Hacia el Aeropuerto</h4>
+                            <p class="text-sm text-gray-700 font-medium">Desde tu ubicación al aeropuerto</p>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+
+                    <label class="relative cursor-pointer">
+                      <input
+                        type="radio"
+                        value="from-airport"
+                        formControlName="direction"
+                        class="sr-only"
+                      >
+                      <div class="p-4 border-2 rounded-lg transition-all duration-200 hover:border-yellow-300"
+                           [class]="routeForm.get('direction')?.value === 'from-airport' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white'">
+                        <div class="flex items-center space-x-3">
+                          <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                          </svg>
+                          <div>
+                            <h4 class="font-bold text-gray-900">Desde el Aeropuerto</h4>
+                            <p class="text-sm text-gray-700 font-medium">Del aeropuerto a tu destino</p>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Origin and Destination -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-bold text-gray-900 mb-2">
+                      {{ routeForm.get('direction')?.value === 'to-airport' ? 'Origen' : 'Destino' }}
+                    </label>
+                    <select formControlName="origin" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium">
+                      <option value="">Seleccionar ubicación</option>
+                      <option *ngFor="let dest of destinations" [value]="dest.name">
+                        {{ dest.name }} - {{ dest.basePrice | currency:'CLP':'symbol':'1.0-0' }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-gray-900 mb-2">
+                      {{ routeForm.get('direction')?.value === 'to-airport' ? 'Destino' : 'Origen' }}
+                    </label>
+                    <input
+                      type="text"
+                      value="Aeropuerto Arturo Merino Benítez (SCL)"
+                      readonly
+                      class="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 font-medium"
+                    >
+                  </div>
+                </div>
+
+                <!-- Date and Time -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-bold text-gray-900 mb-2">Fecha de Salida</label>
+                    <input
+                      type="date"
+                      formControlName="departureDate"
+                      [min]="minDate"
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
+                    >
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-bold text-gray-900 mb-2">Hora de Salida</label>
+                    <input
+                      type="time"
+                      formControlName="departureTime"
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
+                    >
+                  </div>
+                </div>
+
+                <!-- Round Trip Option -->
+                <div class="space-y-4">
+                  <label class="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      formControlName="isRoundTrip"
+                      class="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                    >
+                    <span class="text-sm font-bold text-gray-900">Viaje de ida y vuelta</span>
+                  </label>
+
+                  <div *ngIf="routeForm.get('isRoundTrip')?.value" class="grid grid-cols-1 md:grid-cols-2 gap-6 ml-7">
+                    <div>
+                      <label class="block text-sm font-bold text-gray-900 mb-2">Fecha de Regreso</label>
+                      <input
+                        type="date"
+                        formControlName="returnDate"
+                        [min]="routeForm.get('departureDate')?.value"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-bold text-gray-900 mb-2">Hora de Regreso</label>
+                      <input
+                        type="time"
+                        formControlName="returnTime"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
+                      >
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Step 2: Vehicle Selection -->
+            <div *ngIf="currentStep === 2" class="space-y-6">
+              <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Selección de Vehículo</h3>
+                <p class="text-gray-700 font-medium">Elija el vehículo y configure los detalles de su viaje</p>
+              </div>
+
+              <form [formGroup]="vehicleForm" class="space-y-6">
+                <!-- Vehicle Type Selection -->
+                <div class="space-y-4">
+                  <label class="block text-sm font-bold text-gray-900">Tipo de Vehículo</label>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="relative cursor-pointer">
+                      <input
+                        type="radio"
+                        value="taxi"
+                        formControlName="vehicleType"
+                        class="sr-only"
+                      >
+                      <div class="p-6 border-2 rounded-lg transition-all duration-200 hover:border-yellow-300"
+                           [class]="vehicleForm.get('vehicleType')?.value === 'taxi' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white'">
+                        <div class="text-center space-y-3">
+                          <svg class="w-12 h-12 mx-auto text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+                          </svg>
+                          <div>
+                            <h4 class="font-bold text-lg text-gray-900">Taxi</h4>
+                            <p class="text-sm text-gray-700 font-medium">1-4 pasajeros</p>
+                            <p class="text-xs text-gray-600 font-medium mt-2">Sedan cómodo y económico</p>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+
+                    <label class="relative cursor-pointer">
+                      <input
+                        type="radio"
+                        value="suv"
+                        formControlName="vehicleType"
+                        class="sr-only"
+                      >
+                      <div class="p-6 border-2 rounded-lg transition-all duration-200 hover:border-yellow-300"
+                           [class]="vehicleForm.get('vehicleType')?.value === 'suv' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white'">
+                        <div class="text-center space-y-3">
+                          <svg class="w-12 h-12 mx-auto text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                          </svg>
+                          <div>
+                            <h4 class="font-bold text-lg text-gray-900">SUV</h4>
+                            <p class="text-sm text-gray-700 font-medium">1-6 pasajeros</p>
+                            <p class="text-xs text-gray-600 font-medium mt-2">Mayor espacio y comodidad</p>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Passengers -->
+                <div>
+                  <label class="block text-sm font-bold text-gray-900 mb-2">Número de Pasajeros</label>
+                  <select formControlName="passengers" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium">
+                    <option value="1">1 pasajero</option>
+                    <option value="2">2 pasajeros</option>
+                    <option value="3">3 pasajeros</option>
+                    <option value="4">4 pasajeros</option>
+                    <option value="5" *ngIf="vehicleForm.get('vehicleType')?.value === 'suv'">5 pasajeros</option>
+                    <option value="6" *ngIf="vehicleForm.get('vehicleType')?.value === 'suv'">6 pasajeros</option>
+                  </select>
+                </div>
+
+                <!-- Luggage Configuration -->
+                <div class="space-y-4">
+                  <h4 class="text-lg font-semibold text-gray-900">Configuración de Equipaje</h4>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Maletas de Bodega</label>
+                      <select formControlName="luggageTrunk" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <option value="0">0 maletas</option>
+                        <option value="1">1 maleta</option>
+                        <option value="2">2 maletas</option>
+                        <option value="3">3 maletas</option>
+                        <option value="4">4 maletas</option>
+                        <option value="5">5 maletas</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Equipaje de Mano</label>
+                      <select formControlName="luggageCabin" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <option value="0">0 equipajes</option>
+                        <option value="1">1 equipaje</option>
+                        <option value="2">2 equipajes</option>
+                        <option value="3">3 equipajes</option>
+                        <option value="4">4 equipajes</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Mochilas</label>
+                      <select formControlName="luggageBackpacks" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <option value="0">0 mochilas</option>
+                        <option value="1">1 mochila</option>
+                        <option value="2">2 mochilas</option>
+                        <option value="3">3 mochilas</option>
+                        <option value="4">4 mochilas</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Step 3: Passenger Details -->
+            <div *ngIf="currentStep === 3" class="space-y-6">
+              <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Detalles del Pasajero</h3>
+                <p class="text-gray-600">Ingrese la información del pasajero principal</p>
+              </div>
+
+              <form [formGroup]="detailsForm" class="space-y-6">
+                <!-- Personal Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre Completo</label>
+                    <input
+                      type="text"
+                      formControlName="passengerName"
+                      placeholder="Ingrese su nombre completo"
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                    >
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Teléfono</label>
+                    <input
+                      type="tel"
+                      formControlName="passengerPhone"
+                      placeholder="+56 9 1234 5678"
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                    >
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    formControlName="passengerEmail"
+                    placeholder="su.email@ejemplo.com"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                  >
+                </div>
+
+                <!-- Flight Information -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">Número de Vuelo (Opcional)</label>
+                  <input
+                    type="text"
+                    formControlName="flightNumber"
+                    placeholder="Ej: LA123, SK456"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                  >
+                  <p class="mt-1 text-sm text-gray-500">Nos ayuda a monitorear retrasos de vuelos</p>
+                </div>
+
+                <!-- Special Requests -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">Solicitudes Especiales (Opcional)</label>
+                  <textarea
+                    formControlName="specialRequests"
+                    rows="3"
+                    placeholder="Silla para bebé, accesibilidad, etc."
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                  ></textarea>
+                </div>
+              </form>
+            </div>
+
+            <!-- Step 4: Payment Summary -->
+            <div *ngIf="currentStep === 4" class="space-y-6">
+              <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Resumen y Pago</h3>
+                <p class="text-gray-600">Revise los detalles de su reserva antes de confirmar</p>
+              </div>
+
+              <!-- Booking Summary -->
+              <div class="bg-gray-50 rounded-lg p-6 space-y-4">
+                <h4 class="text-lg font-semibold text-gray-900 mb-4">Resumen de la Reserva</h4>
+                
+                <!-- Route Summary -->
+                <div class="border-b border-gray-200 pb-4">
+                  <h5 class="font-medium text-gray-900 mb-2">Ruta</h5>
+                  <p class="text-sm text-gray-600">
+                    <span class="font-medium">{{ getRouteDescription() }}</span>
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    {{ bookingData.departureDate }} a las {{ bookingData.departureTime }}
+                  </p>
+                  <p *ngIf="bookingData.isRoundTrip" class="text-sm text-gray-600">
+                    Regreso: {{ bookingData.returnDate }} a las {{ bookingData.returnTime }}
+                  </p>
+                </div>
+
+                <!-- Vehicle Summary -->
+                <div class="border-b border-gray-200 pb-4">
+                  <h5 class="font-medium text-gray-900 mb-2">Vehículo</h5>
+                  <p class="text-sm text-gray-600">
+                    <span class="font-medium">{{ bookingData.vehicleType === 'taxi' ? 'Taxi' : 'SUV' }}</span>
+                    - {{ bookingData.passengers }} pasajero{{ bookingData.passengers > 1 ? 's' : '' }}
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    Equipaje: {{ bookingData.luggage.trunk }} maleta{{ bookingData.luggage.trunk !== 1 ? 's' : '' }}, 
+                    {{ bookingData.luggage.cabin }} equipaje{{ bookingData.luggage.cabin !== 1 ? 's' : '' }} de mano, 
+                    {{ bookingData.luggage.backpacks }} mochila{{ bookingData.luggage.backpacks !== 1 ? 's' : '' }}
+                  </p>
+                </div>
+
+                <!-- Passenger Summary -->
+                <div class="border-b border-gray-200 pb-4">
+                  <h5 class="font-medium text-gray-900 mb-2">Pasajero</h5>
+                  <p class="text-sm text-gray-600">{{ bookingData.passengerName }}</p>
+                  <p class="text-sm text-gray-600">{{ bookingData.passengerEmail }}</p>
+                  <p class="text-sm text-gray-600">{{ bookingData.passengerPhone }}</p>
+                  <p *ngIf="bookingData.flightNumber" class="text-sm text-gray-600">
+                    Vuelo: {{ bookingData.flightNumber }}
+                  </p>
+                </div>
+
+                <!-- Price Summary -->
+                <div *ngIf="priceCalculation" class="space-y-2">
+                  <h5 class="font-medium text-gray-900 mb-2">Precio</h5>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Tarifa base:</span>
+                    <span class="font-medium">{{ priceCalculation.basePrice | currency:'CLP':'symbol':'1.0-0' }}</span>
+                  </div>
+                  <div *ngIf="priceCalculation.airportSurcharge > 0" class="flex justify-between text-sm">
+                    <span class="text-gray-600">Recargo aeropuerto:</span>
+                    <span class="font-medium">{{ priceCalculation.airportSurcharge | currency:'CLP':'symbol':'1.0-0' }}</span>
+                  </div>
+                  <div class="border-t border-gray-300 pt-2 flex justify-between">
+                    <span class="font-semibold text-gray-900">Total:</span>
+                    <span class="font-bold text-xl text-yellow-600">{{ priceCalculation.totalPrice | currency:'CLP':'symbol':'1.0-0' }}</span>
                   </div>
                 </div>
               </div>
+
+              <!-- Payment Button -->
+              <div class="text-center pt-6">
+                <button
+                  (click)="processPayment()"
+                  [disabled]="isProcessingPayment"
+                  class="inline-flex items-center px-8 py-4 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl"
+                >
+                  <svg *ngIf="!isProcessingPayment" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                  </svg>
+                  <svg *ngIf="isProcessingPayment" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ isProcessingPayment ? 'Procesando...' : 'Confirmar y Pagar $' + (priceCalculation?.totalPrice || 0) }}
+                </button>
+              </div>
             </div>
+
           </div>
 
-          <!-- Step 3: Date & Time -->
-          <div *ngIf="currentStep === 3" class="step-panel">
-            <h3>{{ 'BOOKING_MODAL.STEP_3.TITLE' | translate }}</h3>
-            
-            <div class="datetime-inputs">
-              <div class="input-group">
-                <label>{{ 'BOOKING_MODAL.DATE' | translate }}</label>
-                <input type="date" 
-                       formControlName="date"
-                       [min]="minDate"
-                       class="datetime-input">
-              </div>
-              
-              <div class="input-group">
-                <label>{{ 'BOOKING_MODAL.TIME' | translate }}</label>
-                <input type="time" 
-                       formControlName="time"
-                       class="datetime-input"
-                       [class.error]="getFieldError('time')"
-                       (change)="validateDateTime()">
-                <div class="error-message" *ngIf="getFieldError('time')">
-                  {{ getFieldError('time') }}
-                </div>
-              </div>
-            </div>
+          <!-- Navigation Buttons -->
+          <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+            <button
+              *ngIf="currentStep > 1"
+              (click)="previousStep()"
+              class="inline-flex items-center px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              Anterior
+            </button>
 
-            <div class="passenger-info">
-              <div class="input-group">
-                <label>{{ 'BOOKING_MODAL.PASSENGERS' | translate }}</label>
-                <select formControlName="passengers" class="passenger-select">
-                  <option value="1">1 {{ 'BOOKING_MODAL.PASSENGER' | translate }}</option>
-                  <option value="2">2 {{ 'BOOKING_MODAL.PASSENGERS' | translate }}</option>
-                  <option value="3">3 {{ 'BOOKING_MODAL.PASSENGERS' | translate }}</option>
-                  <option value="4">4 {{ 'BOOKING_MODAL.PASSENGERS' | translate }}</option>
-                  <option value="5">5+ {{ 'BOOKING_MODAL.PASSENGERS' | translate }}</option>
-                </select>
-              </div>
+            <div class="flex-1"></div>
 
-              <div class="input-group">
-                <label>{{ 'BOOKING_MODAL.PHONE' | translate }}</label>
-                <input type="tel" 
-                       formControlName="phone"
-                       [placeholder]="'BOOKING_MODAL.PHONE_PLACEHOLDER' | translate"
-                       class="phone-input"
-                       [class.error]="getFieldError('phone')"
-                       (blur)="validatePhoneNumber()">
-                <div class="error-message" *ngIf="getFieldError('phone')">
-                  {{ getFieldError('phone') }}
-                </div>
-              </div>
-            </div>
+            <button
+              *ngIf="currentStep < 4"
+              (click)="nextStep()"
+              [disabled]="!isCurrentStepValid()"
+              class="inline-flex items-center px-6 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 text-white font-medium rounded-lg transition-colors duration-200"
+            >
+              Siguiente
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
           </div>
 
-          <!-- Step 4: Confirmation -->
-          <div *ngIf="currentStep === 4" class="step-panel">
-            <h3>{{ 'BOOKING_MODAL.STEP_4.TITLE' | translate }}</h3>
-            
-            <div class="booking-summary">
-              <div class="summary-item">
-                <span class="label">{{ 'BOOKING_MODAL.ROUTE' | translate }}:</span>
-                <span class="value">{{ getRouteSummary() }}</span>
-              </div>
-              
-              <div class="summary-item">
-                <span class="label">{{ 'BOOKING_MODAL.VEHICLE' | translate }}:</span>
-                <span class="value">{{ getSelectedVehicleName() | translate }}</span>
-              </div>
-              
-              <div class="summary-item">
-                <span class="label">{{ 'BOOKING_MODAL.DATETIME' | translate }}:</span>
-                <span class="value">{{ getDateTimeSummary() }}</span>
-              </div>
-              
-              <div class="summary-item">
-                <span class="label">{{ 'BOOKING_MODAL.PASSENGERS' | translate }}:</span>
-                <span class="value">{{ bookingForm.get('passengers')?.value }}</span>
-              </div>
-              
-              <div class="summary-item total">
-                <span class="label">{{ 'BOOKING_MODAL.TOTAL' | translate }}:</span>
-                <span class="value price">{{ calculateTotal() | currency:'USD':'symbol':'1.2-2' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="modal-footer">
-          <button *ngIf="currentStep > 1" 
-                  class="back-button"
-                  (click)="previousStep()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-            {{ 'BOOKING_MODAL.BACK' | translate }}
-          </button>
-          
-          <button class="next-button"
-                  [class.loading]="isProcessing"
-                  [disabled]="!canProceed()"
-                  (click)="nextStep()">
-            <span *ngIf="!isProcessing">
-              {{ getNextButtonText() | translate }}
-            </span>
-            <div *ngIf="isProcessing" class="button-spinner">
-              <div class="spinner"></div>
-              {{ 'BOOKING_MODAL.PROCESSING' | translate }}
-            </div>
-          </button>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .booking-modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(8px);
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .booking-modal-content {
-      background: white;
-      border-radius: 16px;
-      max-width: 600px;
-      width: 100%;
+    .modal-content {
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2rem 2rem 1rem;
-      border-bottom: 1px solid #e5e7eb;
+    /* Smooth modal animation */
+    .modal-content {
+      animation: modalSlideIn 0.3s ease-out;
     }
 
-    .header-content {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .icon-container {
-      width: 48px;
-      height: 48px;
-      background: rgba(245, 158, 11, 0.1);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .airplane-icon {
-      width: 24px;
-      height: 24px;
-      color: #f59e0b;
-    }
-
-    .header-text h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #111827;
-    }
-
-    .header-text p {
-      margin: 0.25rem 0 0;
-      color: #6b7280;
-      font-size: 0.875rem;
-    }
-
-    .close-button {
-      width: 40px;
-      height: 40px;
-      border: none;
-      background: #f3f4f6;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .close-button:hover {
-      background: #e5e7eb;
-    }
-
-    .close-button svg {
-      width: 20px;
-      height: 20px;
-      color: #6b7280;
-    }
-
-    .progress-steps {
-      display: flex;
-      align-items: center;
-      padding: 1.5rem 2rem;
-      gap: 1rem;
-      overflow-x: auto;
-    }
-
-    .step {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      min-width: 120px;
-      opacity: 0.5;
-      transition: opacity 0.3s ease;
-    }
-
-    .step.active,
-    .step.completed {
-      opacity: 1;
-    }
-
-    .step-circle {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
-
-    .step.active .step-circle {
-      background: #f59e0b;
-      color: white;
-    }
-
-    .step.completed .step-circle {
-      background: #10b981;
-      color: white;
-    }
-
-    .check-icon {
-      width: 16px;
-      height: 16px;
-    }
-
-    .step-number {
-      font-size: 0.875rem;
-      font-weight: 600;
-    }
-
-    .step-title {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #374151;
-    }
-
-    .step-content {
-      padding: 0 2rem 1rem;
-      min-height: 300px;
-    }
-
-    .step-panel h3 {
-      margin: 0 0 1.5rem;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #111827;
-    }
-
-    /* Route Options */
-    .route-options {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .route-option {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .route-option:hover {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.05);
-    }
-
-    .route-option.selected {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.1);
-    }
-
-    .option-icon {
-      width: 40px;
-      height: 40px;
-      background: rgba(245, 158, 11, 0.1);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .option-icon svg {
-      width: 20px;
-      height: 20px;
-      color: #f59e0b;
-    }
-
-    .option-content h4 {
-      margin: 0 0 0.25rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #111827;
-    }
-
-    .option-content p {
-      margin: 0;
-      font-size: 0.875rem;
-      color: #6b7280;
-    }
-
-    /* Location Inputs */
-    .location-inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .input-group label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #374151;
-    }
-
-    .location-input,
-    .datetime-input,
-    .passenger-select,
-    .phone-input {
-      padding: 0.75rem;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.2s ease;
-    }
-
-    .location-input:focus,
-    .datetime-input:focus,
-    .passenger-select:focus,
-    .phone-input:focus {
-      outline: none;
-      border-color: #f59e0b;
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-    }
-
-    /* Vehicle Options */
-    .vehicle-options {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .vehicle-option {
-      display: flex;
-      gap: 1rem;
-      padding: 1rem;
-      border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .vehicle-option:hover {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.05);
-    }
-
-    .vehicle-option.selected {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.1);
-    }
-
-    .vehicle-icon {
-      width: 48px;
-      height: 48px;
-      background: rgba(245, 158, 11, 0.1);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .vehicle-icon svg {
-      width: 24px;
-      height: 24px;
-      color: #f59e0b;
-    }
-
-    .vehicle-info {
-      flex: 1;
-    }
-
-    .vehicle-info h4 {
-      margin: 0 0 0.25rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #111827;
-    }
-
-    .vehicle-info p {
-      margin: 0 0 0.5rem;
-      font-size: 0.875rem;
-      color: #6b7280;
-    }
-
-    .vehicle-features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .vehicle-features span {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
-      background: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
-      border-radius: 4px;
-    }
-
-    .vehicle-price {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .price {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #111827;
-    }
-
-    .price-note {
-      font-size: 0.75rem;
-      color: #6b7280;
-    }
-
-    /* DateTime & Passenger Info */
-    .datetime-inputs,
-    .passenger-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    /* Booking Summary */
-    .booking-summary {
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 1rem;
-    }
-
-    .summary-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .summary-item:last-child {
-      border-bottom: none;
-    }
-
-    .summary-item.total {
-      font-weight: 700;
-      font-size: 1.125rem;
-      color: #111827;
-      margin-top: 0.5rem;
-      padding-top: 1rem;
-      border-top: 2px solid #e5e7eb;
-    }
-
-    .summary-item .label {
-      color: #6b7280;
-    }
-
-    .summary-item .value {
-      color: #111827;
-      font-weight: 500;
-    }
-
-    /* Modal Footer */
-    .modal-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 2rem;
-      border-top: 1px solid #e5e7eb;
-      gap: 1rem;
-    }
-
-    .back-button {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1rem;
-      background: transparent;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      color: #374151;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .back-button:hover {
-      background: #f3f4f6;
-    }
-
-    .back-button svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .next-button {
-      flex: 1;
-      max-width: 200px;
-      padding: 0.75rem 1.5rem;
-      background: linear-gradient(135deg, #f59e0b, #f97316);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .next-button:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-    }
-
-    .next-button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .button-spinner {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top: 2px solid white;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 640px) {
-      .booking-modal-overlay {
-        padding: 0;
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
       }
-
-      .booking-modal-content {
-        width: 100vw;
-        height: 100vh;
-        max-height: 100vh;
-        border-radius: 0;
-        margin: 0;
-        transform: translateY(0);
-        overflow-y: auto;
-      }
-
-      .modal-header {
-        padding: 1rem;
-        position: sticky;
-        top: 0;
-        background: white;
-        z-index: 10;
-        border-bottom: 1px solid #e5e7eb;
-      }
-
-      .progress-steps {
-        padding: 0 1rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .step-content {
-        padding: 1rem;
-        min-height: calc(100vh - 200px);
-      }
-
-      .modal-footer {
-        position: sticky;
-        bottom: 0;
-        background: white;
-        border-top: 1px solid #e5e7eb;
-        z-index: 10;
-      }
-
-      /* Improve touch targets */
-      .route-option,
-      .vehicle-option {
-        min-height: 60px;
-        padding: 1rem;
-      }
-
-      .datetime-input,
-      .location-input,
-      .passenger-select,
-      .phone-input {
-        min-height: 48px;
-        font-size: 16px; /* Prevents zoom on iOS */
-      }
-
-      .next-button,
-      .back-button {
-        min-height: 48px;
-        font-size: 16px;
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
       }
     }
 
-    /* Improved Focus States for Accessibility */
-    .route-option:focus,
-    .vehicle-option:focus,
-    .close-button:focus,
-    .back-button:focus,
-    .next-button:focus {
-      outline: 2px solid #f59e0b;
-      outline-offset: 2px;
+    /* Custom scrollbar for modal */
+    .modal-content::-webkit-scrollbar {
+      width: 6px;
     }
 
-    /* High Contrast Mode Support */
-    @media (prefers-contrast: high) {
-      .booking-modal-content {
-        border: 2px solid #000;
-      }
-      
-      .route-option,
-      .vehicle-option {
-        border-width: 2px;
-      }
-      
-      .route-option.selected,
-      .vehicle-option.selected {
-        border-color: #000;
-        background: #fff;
-      }
+    .modal-content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
     }
 
-    /* Reduce Motion for Users Who Prefer It */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
+    .modal-content::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
     }
 
-    /* Error Validation Styles */
-    .error-message {
-      color: #dc2626;
-      font-size: 0.75rem;
-      margin-top: 0.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .error-message::before {
-      content: "⚠️";
-      font-size: 0.75rem;
-    }
-
-    .location-input.error,
-    .datetime-input.error,
-    .phone-input.error {
-      border-color: #dc2626;
-      background: rgba(220, 38, 38, 0.05);
-    }
-
-    .location-input.error:focus,
-    .datetime-input.error:focus,
-    .phone-input.error:focus {
-      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-    }
-
-    /* Success Validation Styles */
-    .location-input.valid,
-    .datetime-input.valid,
-    .phone-input.valid {
-      border-color: #16a34a;
-      background: rgba(22, 163, 74, 0.05);
-    }
-
-    .location-input.valid::after,
-    .datetime-input.valid::after,
-    .phone-input.valid::after {
-      content: "✓";
-      color: #16a34a;
-      position: absolute;
-      right: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
     }
   `]
 })
 export class BookingModalComponent implements OnInit, OnDestroy {
-  @Input() isVisible = false;
-  @Output() close = new EventEmitter<void>();
-  @Output() bookingComplete = new EventEmitter<any>();
+  @Input() isOpen = false;
+  @Output() closeEvent = new EventEmitter<void>();
+  @Output() bookingCompleted = new EventEmitter<any>();
 
-  bookingForm: FormGroup;
+  private destroy$ = new Subject<void>();
+  
   currentStep = 1;
-  animating = false;
-  isProcessing = false;
-
-  steps: BookingStep[] = [
-    { id: 1, title: 'BOOKING_MODAL.STEP_1.NAV', completed: false, active: true },
-    { id: 2, title: 'BOOKING_MODAL.STEP_2.NAV', completed: false, active: false },
-    { id: 3, title: 'BOOKING_MODAL.STEP_3.NAV', completed: false, active: false },
-    { id: 4, title: 'BOOKING_MODAL.STEP_4.NAV', completed: false, active: false }
+  isProcessingPayment = false;
+  
+  steps: Step[] = [
+    { number: 1, title: 'Ruta', isCompleted: false, isActive: true },
+    { number: 2, title: 'Vehículo', isCompleted: false, isActive: false },
+    { number: 3, title: 'Detalles', isCompleted: false, isActive: false },
+    { number: 4, title: 'Pago', isCompleted: false, isActive: false }
   ];
 
-  vehicleTypes = [
-    {
-      id: 'sedan',
-      name: 'VEHICLES.SEDAN',
-      description: 'VEHICLES.SEDAN_DESC',
-      features: ['VEHICLES.AC', 'VEHICLES.WIFI', 'VEHICLES.4_PASSENGERS'],
-      basePrice: 25,
-      iconPath: 'M5 11h14V9H5v2zm0 4h14v-2H5v2zm0-8h14V5H5v2z'
-    },
-    {
-      id: 'suv',
-      name: 'VEHICLES.SUV',
-      description: 'VEHICLES.SUV_DESC',
-      features: ['VEHICLES.AC', 'VEHICLES.WIFI', 'VEHICLES.6_PASSENGERS', 'VEHICLES.LUGGAGE'],
-      basePrice: 35,
-      iconPath: 'M3 11h18V9H3v2zm0 4h18v-2H3v2zm0-8h18V5H3v2z'
-    },
-    {
-      id: 'van',
-      name: 'VEHICLES.VAN',
-      description: 'VEHICLES.VAN_DESC',
-      features: ['VEHICLES.AC', 'VEHICLES.WIFI', 'VEHICLES.8_PASSENGERS', 'VEHICLES.LUGGAGE', 'VEHICLES.PREMIUM'],
-      basePrice: 45,
-      iconPath: 'M2 11h20V9H2v2zm0 4h20v-2H2v2zm0-8h20V5H2v2z'
-    }
-  ];
+  destinations: Destination[] = [];
+  vehicleTypes: VehicleType[] = [];
+  priceCalculation: PriceCalculation | null = null;
+  minDate: string;
 
-  minDate = new Date().toISOString().split('T')[0];
+  // Forms
+  routeForm: FormGroup;
+  vehicleForm: FormGroup;
+  detailsForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
-    this.bookingForm = this.fb.group({
-      direction: ['', Validators.required],
+  // Booking data
+  bookingData: BookingData = {
+    direction: 'to-airport',
+    origin: '',
+    destination: 'Aeropuerto Arturo Merino Benítez (SCL)',
+    departureDate: '',
+    departureTime: '',
+    isRoundTrip: false,
+    vehicleType: 'taxi',
+    passengers: 1,
+    luggage: {
+      trunk: 1,
+      cabin: 1,
+      backpacks: 0
+    },
+    passengerName: '',
+    passengerEmail: '',
+    passengerPhone: '',
+    specialRequests: '',
+    flightNumber: ''
+  };
+
+  constructor(
+    private fb: FormBuilder,
+    private bookingService: BookingService,
+    private authService: AuthService,
+    private pricingService: PricingService
+  ) {
+    // Set minimum date to today
+    const today = new Date();
+    this.minDate = today.toISOString().split('T')[0];
+
+    // Initialize forms
+    this.routeForm = this.fb.group({
+      direction: ['to-airport', Validators.required],
       origin: ['', Validators.required],
-      destination: ['', Validators.required],
-      vehicleType: ['', Validators.required],
-      date: ['', Validators.required],
-      time: ['', Validators.required],
-      passengers: ['1', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern(/^[+]?[\d\s-()]+$/)]]
+      departureDate: ['', Validators.required],
+      departureTime: ['', Validators.required],
+      isRoundTrip: [false],
+      returnDate: [''],
+      returnTime: ['']
+    });
+
+    this.vehicleForm = this.fb.group({
+      vehicleType: ['taxi', Validators.required],
+      passengers: [1, [Validators.required, Validators.min(1)]],
+      luggageTrunk: [1, [Validators.required, Validators.min(0)]],
+      luggageCabin: [1, [Validators.required, Validators.min(0)]],
+      luggageBackpacks: [0, [Validators.required, Validators.min(0)]]
+    });
+
+    this.detailsForm = this.fb.group({
+      passengerName: ['', [Validators.required, Validators.minLength(2)]],
+      passengerEmail: ['', [Validators.required, Validators.email]],
+      passengerPhone: ['', [Validators.required, Validators.pattern(/^(\+56|56)?[ -]?9[ -]?\d{4}[ -]?\d{4}$/)]],
+      flightNumber: [''],
+      specialRequests: ['']
     });
   }
 
   ngOnInit(): void {
-    // Set default date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    this.bookingForm.patchValue({
-      date: tomorrow.toISOString().split('T')[0],
-      time: '08:00'
-    });
+    this.loadDestinations();
+    this.loadVehicleTypes();
+    this.setupFormSubscriptions();
   }
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  onBackdropClick(): void {
-    this.closeModal();
+  private loadDestinations(): void {
+    this.destinations = this.pricingService.getDestinations();
   }
 
-  closeModal(): void {
-    this.animating = true;
-    this.close.emit();
+  private loadVehicleTypes(): void {
+    this.vehicleTypes = this.pricingService.getVehicleTypes();
+  }
+
+  private setupFormSubscriptions(): void {
+    // Route form changes
+    this.routeForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateBookingData();
+        this.calculatePrice();
+      });
+
+    // Vehicle form changes
+    this.vehicleForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateBookingData();
+        this.calculatePrice();
+      });
+
+    // Details form changes
+    this.detailsForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateBookingData();
+      });
+
+    // Round trip validation
+    this.routeForm.get('isRoundTrip')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isRoundTrip => {
+        const returnDateControl = this.routeForm.get('returnDate');
+        const returnTimeControl = this.routeForm.get('returnTime');
+        
+        if (isRoundTrip) {
+          returnDateControl?.setValidators([Validators.required]);
+          returnTimeControl?.setValidators([Validators.required]);
+        } else {
+          returnDateControl?.clearValidators();
+          returnTimeControl?.clearValidators();
+          returnDateControl?.setValue('');
+          returnTimeControl?.setValue('');
+        }
+        
+        returnDateControl?.updateValueAndValidity();
+        returnTimeControl?.updateValueAndValidity();
+      });
+  }
+
+  closeModal(event?: Event): void {
+    if (event && event.target !== event.currentTarget) {
+      return;
+    }
+    this.closeEvent.emit();
+  }
+
+  getStepClasses(step: Step): string {
+    if (step.isCompleted) {
+      return 'bg-green-500 border-green-500';
+    } else if (step.isActive) {
+      return 'bg-yellow-500 border-yellow-500';
+    } else {
+      return 'bg-white border-gray-300';
+    }
+  }
+
+  nextStep(): void {
+    if (!this.isCurrentStepValid()) return;
+
+    this.steps[this.currentStep - 1].isCompleted = true;
+    this.steps[this.currentStep - 1].isActive = false;
     
-    setTimeout(() => {
-      this.animating = false;
-      this.resetModal();
-    }, 300);
-  }
-
-  resetModal(): void {
-    this.currentStep = 1;
-    this.isProcessing = false;
-    this.bookingForm.reset({
-      direction: '',
-      origin: '',
-      destination: '',
-      vehicleType: '',
-      date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow
-      time: '08:00',
-      passengers: '1',
-      phone: ''
-    });
-    this.updateSteps();
-  }
-
-  selectDirection(direction: string): void {
-    this.bookingForm.patchValue({ direction });
-  }
-
-  selectVehicle(vehicleId: string): void {
-    this.bookingForm.patchValue({ vehicleType: vehicleId });
-  }
-
-  getLocationLabel(type: 'origin' | 'destination'): string {
-    const direction = this.bookingForm.get('direction')?.value;
-    if (direction === 'to-airport') {
-      return type === 'origin' ? 'BOOKING_MODAL.PICKUP_LOCATION' : 'BOOKING_MODAL.AIRPORT';
-    } else {
-      return type === 'origin' ? 'BOOKING_MODAL.AIRPORT' : 'BOOKING_MODAL.DESTINATION';
+    if (this.currentStep < 4) {
+      this.currentStep++;
+      this.steps[this.currentStep - 1].isActive = true;
     }
   }
 
-  getLocationPlaceholder(type: 'origin' | 'destination'): string {
-    const direction = this.bookingForm.get('direction')?.value;
-    if (direction === 'to-airport') {
-      return type === 'origin' ? 'BOOKING_MODAL.PICKUP_PLACEHOLDER' : 'BOOKING_MODAL.AIRPORT_PLACEHOLDER';
-    } else {
-      return type === 'origin' ? 'BOOKING_MODAL.AIRPORT_PLACEHOLDER' : 'BOOKING_MODAL.DESTINATION_PLACEHOLDER';
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.steps[this.currentStep - 1].isActive = false;
+      this.steps[this.currentStep - 1].isCompleted = false;
+      this.currentStep--;
+      this.steps[this.currentStep - 1].isActive = true;
+      this.steps[this.currentStep - 1].isCompleted = false;
     }
   }
 
-  canProceed(): boolean {
+  isCurrentStepValid(): boolean {
     switch (this.currentStep) {
       case 1:
-        return !!(this.bookingForm.get('direction')?.value && 
-                 this.bookingForm.get('origin')?.value && 
-                 this.bookingForm.get('destination')?.value);
+        return this.routeForm.valid;
       case 2:
-        return !!this.bookingForm.get('vehicleType')?.value;
+        return this.vehicleForm.valid;
       case 3:
-        return !!(this.bookingForm.get('date')?.value && 
-                 this.bookingForm.get('time')?.value && 
-                 this.bookingForm.get('phone')?.value);
+        return this.detailsForm.valid;
       case 4:
         return true;
       default:
@@ -1074,158 +824,136 @@ export class BookingModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  nextStep(): void {
-    if (this.currentStep < 4) {
-      this.currentStep++;
-      this.updateSteps();
+  private updateBookingData(): void {
+    // Update from route form
+    const routeValues = this.routeForm.value;
+    this.bookingData.direction = routeValues.direction;
+    this.bookingData.origin = routeValues.origin;
+    this.bookingData.departureDate = routeValues.departureDate;
+    this.bookingData.departureTime = routeValues.departureTime;
+    this.bookingData.isRoundTrip = routeValues.isRoundTrip;
+    this.bookingData.returnDate = routeValues.returnDate;
+    this.bookingData.returnTime = routeValues.returnTime;
+
+    // Update from vehicle form
+    const vehicleValues = this.vehicleForm.value;
+    this.bookingData.vehicleType = vehicleValues.vehicleType;
+    this.bookingData.passengers = vehicleValues.passengers;
+    this.bookingData.luggage = {
+      trunk: vehicleValues.luggageTrunk,
+      cabin: vehicleValues.luggageCabin,
+      backpacks: vehicleValues.luggageBackpacks
+    };
+
+    // Update from details form
+    const detailsValues = this.detailsForm.value;
+    this.bookingData.passengerName = detailsValues.passengerName;
+    this.bookingData.passengerEmail = detailsValues.passengerEmail;
+    this.bookingData.passengerPhone = detailsValues.passengerPhone;
+    this.bookingData.flightNumber = detailsValues.flightNumber;
+    this.bookingData.specialRequests = detailsValues.specialRequests;
+  }
+
+  private calculatePrice(): void {
+    if (!this.routeForm.get('origin')?.value || !this.vehicleForm.get('vehicleType')?.value) {
+      return;
+    }
+
+    const destinationName = this.routeForm.get('origin')?.value;
+    const vehicleType = this.vehicleForm.get('vehicleType')?.value as 'taxi' | 'suv';
+    const isFromAirport = this.routeForm.get('direction')?.value === 'from-airport';
+
+    if (destinationName) {
+      const calculation = this.pricingService.calculatePrice(destinationName, vehicleType, isFromAirport);
+      if (calculation) {
+        this.priceCalculation = calculation;
+        this.bookingData.priceCalculation = calculation;
+      }
+    }
+  }
+
+  getRouteDescription(): string {
+    const origin = this.bookingData.origin;
+    const destination = this.bookingData.destination;
+    
+    if (this.bookingData.direction === 'to-airport') {
+      return `${origin} → ${destination}`;
     } else {
-      this.confirmBooking();
+      return `${destination} → ${origin}`;
     }
   }
 
-  previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-      this.updateSteps();
-    }
-  }
+  async processPayment(): Promise<void> {
+    this.isProcessingPayment = true;
 
-  updateSteps(): void {
-    this.steps.forEach((step, index) => {
-      step.completed = index + 1 < this.currentStep;
-      step.active = index + 1 === this.currentStep;
-    });
-  }
-
-  getNextButtonText(): string {
-    switch (this.currentStep) {
-      case 1: return 'BOOKING_MODAL.CONTINUE';
-      case 2: return 'BOOKING_MODAL.CONTINUE';
-      case 3: return 'BOOKING_MODAL.REVIEW';
-      case 4: return 'BOOKING_MODAL.CONFIRM';
-      default: return 'BOOKING_MODAL.CONTINUE';
-    }
-  }
-
-  getRouteSummary(): string {
-    const origin = this.bookingForm.get('origin')?.value;
-    const destination = this.bookingForm.get('destination')?.value;
-    return `${origin} → ${destination}`;
-  }
-
-  getSelectedVehicleName(): string {
-    const vehicleType = this.bookingForm.get('vehicleType')?.value;
-    const vehicle = this.vehicleTypes.find(v => v.id === vehicleType);
-    return vehicle ? vehicle.name : '';
-  }
-
-  getDateTimeSummary(): string {
-    const date = this.bookingForm.get('date')?.value;
-    const time = this.bookingForm.get('time')?.value;
-    if (date && time) {
-      const formattedDate = new Date(date).toLocaleDateString();
-      return `${formattedDate} at ${time}`;
-    }
-    return '';
-  }
-
-  calculateTotal(): number {
-    const vehicleType = this.bookingForm.get('vehicleType')?.value;
-    const vehicle = this.vehicleTypes.find(v => v.id === vehicleType);
-    const basePrice = vehicle ? vehicle.basePrice : 0;
-    
-    // Add distance-based pricing (simplified calculation)
-    const distanceMultiplier = 1.5; // This would be calculated based on actual distance
-    
-    return basePrice * distanceMultiplier;
-  }
-
-  async confirmBooking(): Promise<void> {
-    this.isProcessing = true;
-    
     try {
-      // Simulate API call
+      // For now, just simulate the booking process
+      // Later this will integrate with the actual booking service
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const bookingData = {
-        ...this.bookingForm.value,
-        total: this.calculateTotal(),
-        id: Date.now().toString()
-      };
-      
-      this.bookingComplete.emit(bookingData);
+      // Emit booking completed event with the booking data
+      this.bookingCompleted.emit(this.bookingData);
       this.closeModal();
       
+      // Reset form for next use
+      this.resetModal();
     } catch (error) {
-      console.error('Booking failed:', error);
+      console.error('Error processing payment:', error);
       // Handle error (show notification, etc.)
     } finally {
-      this.isProcessing = false;
+      this.isProcessingPayment = false;
     }
   }
 
-  // Enhanced real-time validation methods
-  validateOriginLocation(): void {
-    const originControl = this.bookingForm.get('origin');
-    const direction = this.bookingForm.get('direction')?.value;
+  private resetModal(): void {
+    this.currentStep = 1;
+    this.isProcessingPayment = false;
+    this.priceCalculation = null;
     
-    if (direction === 'from-airport' && originControl?.value) {
-      // Validate airport format
-      const airportPattern = /aeropuerto|airport|atp/i;
-      if (!airportPattern.test(originControl.value)) {
-        originControl.setErrors({ invalidAirport: true });
-      }
-    }
-  }
+    // Reset steps
+    this.steps = [
+      { number: 1, title: 'Ruta', isCompleted: false, isActive: true },
+      { number: 2, title: 'Vehículo', isCompleted: false, isActive: false },
+      { number: 3, title: 'Detalles', isCompleted: false, isActive: false },
+      { number: 4, title: 'Pago', isCompleted: false, isActive: false }
+    ];
 
-  validateDestinationLocation(): void {
-    const destinationControl = this.bookingForm.get('destination');
-    const direction = this.bookingForm.get('direction')?.value;
-    
-    if (direction === 'to-airport' && destinationControl?.value) {
-      // Validate destination format (basic address validation)
-      const addressPattern = /^[a-zA-Z0-9\s,.-]+$/;
-      if (!addressPattern.test(destinationControl.value)) {
-        destinationControl.setErrors({ invalidAddress: true });
-      }
-    }
-  }
+    // Reset forms
+    this.routeForm.reset({
+      direction: 'to-airport',
+      isRoundTrip: false
+    });
 
-  validatePhoneNumber(): void {
-    const phoneControl = this.bookingForm.get('phone');
-    if (phoneControl?.value) {
-      // Enhanced phone validation for international numbers
-      const phonePattern = /^[\+]?[1-9][\d]{0,15}$/;
-      if (!phonePattern.test(phoneControl.value.replace(/[\s-()]/g, ''))) {
-        phoneControl.setErrors({ invalidPhone: true });
-      }
-    }
-  }
+    this.vehicleForm.reset({
+      vehicleType: 'taxi',
+      passengers: 1,
+      luggageTrunk: 1,
+      luggageCabin: 1,
+      luggageBackpacks: 0
+    });
 
-  validateDateTime(): void {
-    const dateControl = this.bookingForm.get('date');
-    const timeControl = this.bookingForm.get('time');
-    
-    if (dateControl?.value && timeControl?.value) {
-      const selectedDateTime = new Date(`${dateControl.value}T${timeControl.value}`);
-      const now = new Date();
-      const minAdvanceTime = new Date(now.getTime() + (2 * 60 * 60 * 1000)); // 2 hours advance
-      
-      if (selectedDateTime < minAdvanceTime) {
-        timeControl.setErrors({ tooSoon: true });
-      }
-    }
-  }
+    this.detailsForm.reset();
 
-  getFieldError(fieldName: string): string | null {
-    const control = this.bookingForm.get(fieldName);
-    if (control && control.errors && control.touched) {
-      if (control.errors['required']) return 'Este campo es requerido';
-      if (control.errors['invalidAirport']) return 'Ingrese un aeropuerto válido';
-      if (control.errors['invalidAddress']) return 'Ingrese una dirección válida';
-      if (control.errors['invalidPhone']) return 'Ingrese un teléfono válido';
-      if (control.errors['tooSoon']) return 'La reserva debe ser con al menos 2 horas de anticipación';
-    }
-    return null;
+    // Reset booking data
+    this.bookingData = {
+      direction: 'to-airport',
+      origin: '',
+      destination: 'Aeropuerto Arturo Merino Benítez (SCL)',
+      departureDate: '',
+      departureTime: '',
+      isRoundTrip: false,
+      vehicleType: 'taxi',
+      passengers: 1,
+      luggage: {
+        trunk: 1,
+        cabin: 1,
+        backpacks: 0
+      },
+      passengerName: '',
+      passengerEmail: '',
+      passengerPhone: '',
+      specialRequests: '',
+      flightNumber: ''
+    };
   }
 }

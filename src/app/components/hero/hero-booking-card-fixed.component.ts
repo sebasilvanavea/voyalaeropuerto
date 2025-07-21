@@ -1,16 +1,15 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, state, style, transition, animate, keyframes, query, stagger } from '@angular/animations';
-import { BookingModalComponent } from '../booking-modal/booking-modal.component';
 import { LoadingComponent } from '../loading/loading.component';
 import { UINotificationService } from '../../services/ui-notification.service';
 
 @Component({
   selector: 'app-hero-booking-card',
   standalone: true,
-  imports: [CommonModule, TranslateModule, BookingModalComponent, LoadingComponent],
+  imports: [CommonModule, TranslateModule, LoadingComponent],
   animations: [
     trigger('cardEntry', [
       state('hidden', style({
@@ -163,13 +162,6 @@ import { UINotificationService } from '../../services/ui-notification.service';
         </div>
       </div>
     </div>
-
-    <!-- Booking Modal -->
-    <app-booking-modal 
-      [isVisible]="showBookingModal"
-      (close)="closeBookingModal()"
-      (bookingComplete)="onBookingComplete($event)">
-    </app-booking-modal>
 
     <!-- Loading Component -->
     <app-loading 
@@ -774,13 +766,15 @@ import { UINotificationService } from '../../services/ui-notification.service';
 })
 export class HeroBookingCardComponent implements OnInit, AfterViewInit, OnDestroy {
   
+  // Output events
+  @Output() openBookingModal = new EventEmitter<void>();
+  
   // Animation states
   cardState = 'hidden';
   animationTrigger = 0;
   iconPulse = 0;
   isLoading = true;
   currentStep = 0;
-  showBookingModal = false;
   
   // Button states for animations
   primaryButtonState = 'normal';
@@ -920,22 +914,19 @@ export class HeroBookingCardComponent implements OnInit, AfterViewInit, OnDestro
     // Add loading state to button
     this.primaryButtonState = 'hovered';
     
-    // Show booking modal instead of navigating
+    // Emit event to open the booking modal
     setTimeout(() => {
-      this.showBookingModal = true;
+      this.openBookingModal.emit();
       this.primaryButtonState = 'normal';
     }, 300);
   }
 
   closeBookingModal(): void {
-    this.showBookingModal = false;
+    // Method kept for compatibility but not used
   }
 
   onBookingComplete(bookingData: any): void {
     console.log('Booking completed:', bookingData);
-    
-    // Close the modal
-    this.showBookingModal = false;
     
     // Show success notification
     this.notificationService.showSuccess(

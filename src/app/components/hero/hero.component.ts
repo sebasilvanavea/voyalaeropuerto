@@ -25,7 +25,7 @@ import { takeUntil } from 'rxjs/operators';
         </div>
         <div class="w-full md:w-1/2 flex justify-center items-center">
           <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-sm border-t-4 border-accent flex items-center justify-center min-h-[420px]">
-            <app-booking></app-booking>
+            <app-booking variant="hero"></app-booking>
           </div>
         </div>
       </div>

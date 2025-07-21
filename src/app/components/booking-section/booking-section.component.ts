@@ -26,7 +26,7 @@ import { BookingComponent } from '../booking/booking.component';
         </div>
         
         <div class="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 md:p-12 animate-fadeInUp delay-300 hover:shadow-xl transition-all duration-500">
-          <app-booking></app-booking>
+          <app-booking variant="section"></app-booking>
         </div>
       </div>
     </section>

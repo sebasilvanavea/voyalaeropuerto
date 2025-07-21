@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from './components/header/header-new.component';
+import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer.component';
 import { NotificationContainerComponent } from './components/notification-container/notification-container.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
