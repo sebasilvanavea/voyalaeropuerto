@@ -115,24 +115,6 @@ import { BookingModalComponent } from '../booking-modal/booking-modal.component'
               </div>
             </div>
             
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 pt-4">
-              <button (click)="openBookingModal()" 
-                      class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl transition-all duration-300 shadow-xl hover:shadow-yellow-500/25 transform hover:scale-105 hero-button-primary">
-                <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
-                <span>Reserva Rápida</span>
-              </button>
-              
-              <button (click)="scrollToSection('tarifas')" 
-                      class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white border-2 border-white/30 rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-300 hero-button-secondary">
-                <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-                </svg>
-                Ver Tarifas
-              </button>
-            </div>
 
             <!-- Trust Indicators -->
 
