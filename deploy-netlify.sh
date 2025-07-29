@@ -15,20 +15,23 @@ npm install
 
 # Construir para producción
 echo "🔨 Construyendo aplicación para producción..."
-npm run build:prod
+npm run build:netlify
 
-# Verificar que el build fue exitoso
+# Verificar que el build fue exitoso y determinar directorio
 if [ $? -eq 0 ]; then
     echo "✅ Build completado exitosamente"
     
-    # Desplegar a Netlify (requiere configuración previa)
-    echo "🌐 Desplegando a Netlify..."
-    
-    # Si es el primer despliegue, usar:
-    # netlify deploy --dir dist/voyalaeropuerto
-    
-    # Para despliegue a producción:
-    netlify deploy --prod --dir dist/voyalaeropuerto
+    # Verificar estructura y desplegar
+    if [ -d "dist/demo/browser" ]; then
+        echo "🌐 Desplegando desde dist/demo/browser..."
+        netlify deploy --prod --dir dist/demo/browser
+    elif [ -d "dist/demo" ]; then
+        echo "🌐 Desplegando desde dist/demo..."
+        netlify deploy --prod --dir dist/demo
+    else
+        echo "❌ No se encontró directorio de build válido"
+        exit 1
+    fi
     
     echo "🎉 ¡Despliegue completado!"
     echo "🔗 Tu aplicación está online en tu dominio de Netlify"

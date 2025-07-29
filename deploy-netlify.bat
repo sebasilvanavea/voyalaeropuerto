@@ -11,17 +11,24 @@ npm install
 
 REM Construir para producción
 echo 🔨 Construyendo aplicación para producción...
-npm run build:prod
+npm run build:netlify
 
-REM Verificar que el build fue exitoso
+REM Verificar que el build fue exitoso y determinar directorio
 if %errorlevel% equ 0 (
     echo ✅ Build completado exitosamente
     
-    REM Desplegar a Netlify
-    echo 🌐 Desplegando a Netlify...
-    
-    REM Para despliegue a producción:
-    netlify deploy --prod --dir dist/voyalaeropuerto
+    REM Verificar estructura y desplegar
+    if exist dist\demo\browser (
+        echo 🌐 Desplegando desde dist/demo/browser...
+        netlify deploy --prod --dir dist/demo/browser
+    ) else if exist dist\demo (
+        echo 🌐 Desplegando desde dist/demo...
+        netlify deploy --prod --dir dist/demo
+    ) else (
+        echo ❌ No se encontró directorio de build válido
+        pause
+        exit /b 1
+    )
     
     echo 🎉 ¡Despliegue completado!
     echo 🔗 Tu aplicación está online en tu dominio de Netlify
