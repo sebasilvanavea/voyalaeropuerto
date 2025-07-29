@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BookingModalService } from '../../services/booking-modal.service';
 
 @Component({
   selector: 'app-header',
@@ -143,7 +144,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
             </button>
 
             <!-- CTA Button - Responsive -->
-            <button (click)="navigateToBooking()" 
+            <button (click)="openBookingModal()" 
                     class="inline-flex items-center px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap">
               <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -253,7 +254,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
               </div>
 
               <!-- Mobile CTA Button - Responsive -->
-              <button (click)="navigateToBooking(); toggleMobileMenu()" 
+              <button (click)="openBookingModal(); toggleMobileMenu()" 
                       class="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white px-4 sm:px-6 py-3 sm:py-3.5 rounded-lg sm:rounded-xl font-semibold transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base min-h-[44px]">
                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -333,7 +334,8 @@ export class HeaderComponent implements OnInit {
   constructor(
     public authService: AuthService,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private bookingModalService: BookingModalService
   ) {}
 
   @HostListener('window:scroll', [])
@@ -404,6 +406,12 @@ export class HeaderComponent implements OnInit {
 
   navigateToBooking() {
     this.scrollToSection('reserva');
+    this.showMobileMenu = false;
+    document.body.style.overflow = 'auto';
+  }
+
+  openBookingModal() {
+    this.bookingModalService.openBookingModal();
     this.showMobileMenu = false;
     document.body.style.overflow = 'auto';
   }

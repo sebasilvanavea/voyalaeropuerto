@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { HeroBookingCardComponent } from './hero-booking-card-fixed.component';
 import { BookingModalComponent } from '../booking-modal/booking-modal.component';
+import { BookingModalService } from '../../services/booking-modal.service';
+import { OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-hero-new',
@@ -725,9 +728,28 @@ import { BookingModalComponent } from '../booking-modal/booking-modal.component'
     }
   `]
 })
-export class HeroNewComponent {
+export class HeroNewComponent implements OnInit, OnDestroy {
   
   isBookingModalOpen = false;
+  private bookingModalSubscription: Subscription | undefined;
+
+  constructor(private bookingModalService: BookingModalService) {}
+
+  ngOnInit() {
+    // Suscribirse a los cambios del modal de booking
+    this.bookingModalSubscription = this.bookingModalService.bookingModal$.subscribe(
+      (isOpen: boolean) => {
+        this.isBookingModalOpen = isOpen;
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    // Limpiar la suscripción para evitar memory leaks
+    if (this.bookingModalSubscription) {
+      this.bookingModalSubscription.unsubscribe();
+    }
+  }
 
   scrollToSection(sectionId: string): void {
     const element = document.getElementById(sectionId);
@@ -744,17 +766,17 @@ export class HeroNewComponent {
   }
 
   openBookingModal(): void {
-    this.isBookingModalOpen = true;
+    this.bookingModalService.openBookingModal();
   }
 
   closeBookingModal(): void {
-    this.isBookingModalOpen = false;
+    this.bookingModalService.closeBookingModal();
   }
 
   onBookingCompleted(bookingData: any): void {
     console.log('Booking completed:', bookingData);
     // Here you can handle the booking completion
     // For example, show a success message, redirect, etc.
-    this.isBookingModalOpen = false;
+    this.bookingModalService.closeBookingModal();
   }
 }
