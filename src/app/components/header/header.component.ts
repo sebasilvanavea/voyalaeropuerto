@@ -10,7 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   imports: [CommonModule, RouterModule, TranslateModule],
   template: `
     <!-- Modern Header responsive inspirado en apiux.io -->
-    <header class="fixed top-0 w-full z-50 transition-all duration-700 ease-in-out" 
+    <header class="fixed top-0 w-full z-40 transition-all duration-700 ease-in-out" 
             [ngClass]="{
               'bg-white/95 backdrop-blur-xl shadow-lg': isScrolled,
               'bg-gradient-to-b from-black/5 to-transparent backdrop-blur-sm': !isScrolled

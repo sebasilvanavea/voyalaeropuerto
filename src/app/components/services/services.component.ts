@@ -82,18 +82,6 @@ import { TranslateModule } from '@ngx-translate/core';
           </div>
         </div>
 
-        <div class="text-center">
-          <p class="text-lg text-gray-600 mb-8">
-            ¿Listo para viajar con comodidad y seguridad?
-          </p>
-          <div class="inline-flex items-center bg-gray-100 rounded-full px-6 py-3">
-            <span class="text-gray-700">Reserva tu viaje ahora</span>
-            <button (click)="scrollToSection('reservar')" 
-                    class="ml-4 px-6 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-full hover:shadow-lg transition-all duration-300">
-              Reservar
-            </button>
-          </div>
-        </div>
       </div>
     </section>
   `,

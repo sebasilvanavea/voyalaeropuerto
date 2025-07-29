@@ -67,3 +67,14 @@ Thumbs.db
 .firebase
 *-debug.log
 .runtimeconfig.json
+
+# Netlify
+.netlify/
+.netlify
+
+# Build artifacts
+*.tgz
+*.tar.gz
+
+# Deployment
+/deploy-logs/

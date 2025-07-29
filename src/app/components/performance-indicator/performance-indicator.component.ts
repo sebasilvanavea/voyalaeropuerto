@@ -40,7 +40,7 @@ import { Subject } from 'rxjs';
     <!-- Performance metrics (development only) -->
     <div 
       *ngIf="showMetrics && isDevelopment"
-      class="fixed bottom-20 right-4 bg-black bg-opacity-80 text-white p-3 rounded-lg text-xs">
+      class="fixed bottom-32 right-4 bg-black bg-opacity-80 text-white p-3 rounded-lg text-xs z-[99999]">
       <div>FPS: {{ currentFps$ | async }}</div>
       <div>Memoria: {{ memoryUsage }}MB</div>
       <div>Conexión: {{ connectionSpeed }}</div>
@@ -58,7 +58,7 @@ import { Subject } from 'rxjs';
       padding: 12px 16px;
       border-radius: 8px;
       font-size: 12px;
-      z-index: 9999;
+      z-index: 99999; /* Increased z-index to ensure it stays above menubar */
       opacity: 0;
       transition: all 0.3s ease;
       transform: translateY(20px);
@@ -72,14 +72,44 @@ import { Subject } from 'rxjs';
 
     .performance-indicator.slow-connection {
       background: rgba(239, 68, 68, 0.9);
+      z-index: 99999; /* Ensure high z-index even for slow connection state */
+    }
+
+    /* Ensure the component is always on top */
+    .performance-indicator,
+    .performance-indicator.show,
+    .performance-indicator.slow-connection {
+      z-index: 99999 !important;
+      position: fixed !important;
     }
 
     @media (max-width: 640px) {
       .performance-indicator {
-        bottom: 10px;
+        bottom: 20px;
         right: 10px;
-        padding: 8px 12px;
+        left: 10px;
+        padding: 10px 14px;
         font-size: 11px;
+        z-index: 99999; /* Ensure high z-index on mobile too */
+        max-width: calc(100vw - 20px);
+      }
+    }
+
+    /* Tablet adjustments */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .performance-indicator {
+        bottom: 20px;
+        right: 15px;
+        z-index: 99999;
+      }
+    }
+
+    /* Desktop adjustments */
+    @media (min-width: 1025px) {
+      .performance-indicator {
+        bottom: 30px;
+        right: 30px;
+        z-index: 99999;
       }
     }
 
